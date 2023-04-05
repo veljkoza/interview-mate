@@ -1,6 +1,5 @@
 import { NextPage } from "next";
-import { useState } from "react";
-import { AppHeader } from "~/components/app-header";
+import { useEffect, useState } from "react";
 import { Button } from "~/components/buttons";
 import { Container } from "~/components/containers";
 import { Panel } from "~/components/panel";
@@ -51,12 +50,13 @@ const SelectOption = (props: {
   variant: "active" | "default" | "inactive";
   text: string;
   onClick: () => void;
+  className?: string;
 }) => {
-  const { onClick, text, variant } = props;
+  const { onClick, text, variant, className = "" } = props;
   return (
     <button
       onClick={() => onClick()}
-      className={`border  px-10 py-5   hover:opacity-50 ${VARIANTS[variant]}`}
+      className={`border  px-10 py-5   hover:opacity-50 ${VARIANTS[variant]} ${className}`}
     >
       {text}
     </button>
@@ -88,13 +88,23 @@ const IndustryOption = ({
 };
 
 const IndustrySelectStep = () => {
-  const [activeIndustry, setActiveIndustry] = useState("");
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
     useInterviewCreator();
+  const [activeIndustry, setActiveIndustry] = useState(
+    interviewCreatorState.interviewConfig.selectedIndustry
+  );
   const goToNextStep = () =>
     dispatchInterviewCreatorUpdate({
       type: "GO_TO_NEXT_STEP",
     });
+
+  useEffect(() => {
+    return () =>
+      dispatchInterviewCreatorUpdate({
+        type: "SET_INDUSTRY",
+        payload: activeIndustry,
+      });
+  }, [activeIndustry]);
 
   return (
     <Container>
@@ -123,7 +133,32 @@ const IndustrySelectStep = () => {
 const TopicSelectStep = () => {
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
     useInterviewCreator();
-  const [selectedTopics, setSelectedTopics] = useState("");
+  const [selectedTopics, setSelectedTopics] = useState(
+    interviewCreatorState.interviewConfig.selectedTopics
+  );
+  const handleTopicClick = (topic: string) => {
+    if (selectedTopics.includes(topic)) {
+      const index = selectedTopics.indexOf(topic);
+      const temp = [...selectedTopics];
+      temp.splice(index, 1);
+      setSelectedTopics(temp);
+      return;
+    }
+    setSelectedTopics((prev) => [...prev, topic]);
+  };
+
+  const getOptionVariant = (topic: string) => {
+    if (selectedTopics.includes(topic)) return "active";
+    return "default";
+  };
+
+  useEffect(() => {
+    return () =>
+      dispatchInterviewCreatorUpdate({
+        type: "SET_TOPICS",
+        payload: selectedTopics,
+      });
+  }, [selectedTopics]);
   return (
     <Container>
       <Heading className="mt-10">Select relevant topics.</Heading>
@@ -132,17 +167,71 @@ const TopicSelectStep = () => {
         {TOPICS.map((topic) => (
           <SelectOption
             key={topic}
-            onClick={() => setSelectedTopics(topic)}
+            onClick={() => handleTopicClick(topic)}
             text={topic}
-            variant="default"
+            variant={getOptionVariant(topic)}
           />
         ))}
       </Panel>
       <div className="mt-8 flex items-center justify-between">
-        <Heading size={3} variant="secondary">
-          {selectedTopics}
-        </Heading>
         <Button
+          className="ml-auto"
+          onClick={() =>
+            dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" })
+          }
+        >
+          Next
+        </Button>
+      </div>
+    </Container>
+  );
+};
+
+const YearsOfExperienceSelectStep = () => {
+  const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
+    useInterviewCreator();
+  const initialState = interviewCreatorState.interviewConfig.yearsOfExperience;
+
+  const [selectedYears, setSelectedYears] = useState<number | undefined>(
+    initialState
+  );
+
+  const getBottomText = () => {
+    if (selectedYears === undefined) return;
+    const yearStr = selectedYears > 1 ? "years" : "year";
+    return `${selectedYears} ${yearStr} of experience`;
+  };
+
+  useEffect(() => {
+    return () =>
+      dispatchInterviewCreatorUpdate({
+        type: "SET_YEARS_OF_EXPERIENCE",
+        payload: selectedYears,
+      });
+  }, [selectedYears]);
+  return (
+    <Container>
+      <Heading className="mt-10">Select target years of experience.</Heading>
+
+      <Panel className="mt-14 flex  items-center gap-4">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((years) => (
+          <SelectOption
+            key={years}
+            className="grow"
+            onClick={() => setSelectedYears(years)}
+            text={years.toString()}
+            variant={selectedYears === years ? "active" : "default"}
+          />
+        ))}
+      </Panel>
+      <div className="mt-8 flex items-center justify-between">
+        {!!selectedYears && (
+          <Heading size={3} variant="secondary">
+            {getBottomText()}
+          </Heading>
+        )}
+        <Button
+          className="ml-auto"
           onClick={() =>
             dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" })
           }
@@ -157,6 +246,7 @@ const TopicSelectStep = () => {
 const STEPS = [
   <IndustrySelectStep key="industry-select" />,
   <TopicSelectStep key="topic-select" />,
+  <YearsOfExperienceSelectStep key="years-of-experience-select" />,
 ];
 
 const MockInterviewBuilder: NextPage = () => {

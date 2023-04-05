@@ -1,7 +1,7 @@
 import {
   createContext,
-  Dispatch,
-  PropsWithChildren,
+  type Dispatch,
+  type PropsWithChildren,
   useContext,
   useReducer,
 } from "react";
@@ -9,8 +9,9 @@ import {
 const DEFAULT_CONTEXT_VALUE = {
   step: 0,
   interviewConfig: {
-    selectedIndustries: [""],
+    selectedIndustry: "",
     selectedTopics: [""],
+    yearsOfExperience: 0,
   },
 };
 
@@ -26,7 +27,12 @@ const InterviewCreatorContext = createContext<TInterviewCreatorContext>({
 } as TInterviewCreatorContext);
 
 export const useInterviewCreator = () => useContext(InterviewCreatorContext);
-type TActionType = "GO_TO_NEXT_STEP" | "SET_STEP";
+type TActionType =
+  | "GO_TO_NEXT_STEP"
+  | "SET_STEP"
+  | "SET_INDUSTRY"
+  | "SET_TOPICS"
+  | "SET_YEARS_OF_EXPERIENCE";
 type TAction = {
   type: TActionType;
   payload?: unknown;
@@ -41,7 +47,7 @@ const interviewCreatorReducer = (
     case "GO_TO_NEXT_STEP":
       const nextStep = prevState.step + 1;
       console.log(nextStep);
-      if (nextStep > 1) return prevState;
+      if (nextStep > 4) return prevState;
       return {
         ...prevState,
         step: nextStep,
@@ -52,6 +58,35 @@ const interviewCreatorReducer = (
         ...prevState,
         step: payload as number,
       };
+    case "SET_INDUSTRY":
+      if (payload === undefined && typeof payload !== "string")
+        return prevState;
+      return {
+        ...prevState,
+        interviewConfig: {
+          ...prevState.interviewConfig,
+          selectedIndustry: payload as string,
+        },
+      };
+    case "SET_TOPICS":
+      return {
+        ...prevState,
+        interviewConfig: {
+          ...prevState.interviewConfig,
+          selectedTopics: payload as string[],
+        },
+      };
+    case "SET_YEARS_OF_EXPERIENCE":
+      if (typeof payload !== "number")
+        throw new Error("yearsOfExperience should be a number");
+      return {
+        ...prevState,
+        interviewConfig: {
+          ...prevState.interviewConfig,
+          yearsOfExperience: payload,
+        },
+      };
+
     default:
       return prevState;
       break;
