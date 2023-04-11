@@ -5,17 +5,22 @@ import {
   useContext,
   useReducer,
 } from "react";
+import { STEPS_LENGTH } from "../consts/consts";
 
 const DEFAULT_CONTEXT_VALUE = {
   step: 0,
   interviewConfig: {
     selectedIndustry: "",
-    selectedTopics: [""],
+    selectedTopics: [] as string[],
     yearsOfExperience: 0,
+    durationInMinutes: 0,
   },
 };
 
 type TInterviewCreatorValue = typeof DEFAULT_CONTEXT_VALUE;
+export type TInterviewConfig = TInterviewCreatorValue["interviewConfig"] & {
+  [k: string]: string | number | string[];
+};
 
 type TInterviewCreatorContext = {
   interviewCreatorState: TInterviewCreatorValue;
@@ -32,7 +37,8 @@ type TActionType =
   | "SET_STEP"
   | "SET_INDUSTRY"
   | "SET_TOPICS"
-  | "SET_YEARS_OF_EXPERIENCE";
+  | "SET_YEARS_OF_EXPERIENCE"
+  | "SET_INTERVIEW_DURATION";
 type TAction = {
   type: TActionType;
   payload?: unknown;
@@ -47,7 +53,7 @@ const interviewCreatorReducer = (
     case "GO_TO_NEXT_STEP":
       const nextStep = prevState.step + 1;
       console.log(nextStep);
-      if (nextStep > 4) return prevState;
+      if (nextStep > STEPS_LENGTH) return prevState;
       return {
         ...prevState,
         step: nextStep,
@@ -84,6 +90,16 @@ const interviewCreatorReducer = (
         interviewConfig: {
           ...prevState.interviewConfig,
           yearsOfExperience: payload,
+        },
+      };
+    case "SET_INTERVIEW_DURATION":
+      if (typeof payload !== "number")
+        throw new Error("durationInMinutes should be a number");
+      return {
+        ...prevState,
+        interviewConfig: {
+          ...prevState.interviewConfig,
+          durationInMinutes: payload,
         },
       };
 

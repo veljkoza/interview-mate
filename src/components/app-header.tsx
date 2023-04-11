@@ -24,7 +24,7 @@ export const AppHeader = () => (
               <Link href={link.to}>{link.text}</Link>
             </li>
           ))}
-          <Button href={ROUTES["mock-interview"]} variant="mini">
+          <Button href={ROUTES["interview-creator"]} variant="mini">
             Have a mock interview
           </Button>
         </ul>

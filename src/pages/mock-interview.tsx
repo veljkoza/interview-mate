@@ -1,287 +1,110 @@
-import { NextPage } from "next";
-import { useEffect, useState } from "react";
-import { Button } from "~/components/buttons";
+import type { NextPage } from "next";
+import { useRouter } from "next/router";
 import { Container } from "~/components/containers";
-import { Panel } from "~/components/panel";
-import { Heading } from "~/components/typography";
+import logoSrc from "assets/logo2.png";
+import Image from "next/image";
+import { getInterviewConfigFromParams } from "~/domain/mock-interview/consts";
+import type { TInterviewConfig } from "~/domain/interview-creator/context/interview-creator.context";
+import { PropsWithChildren } from "react";
 
-import { INDUSTRIES } from "~/consts/industries";
-import { TOPICS } from "~/consts/topics";
-import {
-  InterviewCreatorProvider,
-  useInterviewCreator,
-} from "~/domain/interview/interview-creator/interview-creator.context";
+type TSender = "ai" | "user";
 
-const CIRCLE_VARIANTS = {
-  default: "border-accent-secondary text-accent-secondary",
-  disabled: "border-muted-default text-muted-default",
+const BUBBLE_VARIANTS: Record<TSender, string> = {
+  ai: " text-accent-secondary border border-accent-secondary opacity-60",
+  user: "bg-canvas-subtle text-muted-fg",
 };
-const CircleDigit = ({
-  number,
-  onClick,
-  variant = "default",
+
+const ChatBubble = ({
+  sender,
+  message = "",
+  isTyping = false,
 }: {
-  number: number;
-  onClick?: () => void;
-  variant?: "default" | "disabled";
+  sender: "ai" | "user";
+  message?: string;
+  isTyping?: boolean;
 }) => {
-  const classNames = `flex h-16 w-16 items-center justify-center  rounded-full border-2  ${CIRCLE_VARIANTS[variant]}`;
-  if (onClick) {
+  const classNames = `rounded-lg ${BUBBLE_VARIANTS[sender]} w-auto  p-3`;
+  if (isTyping)
     return (
-      <button className={classNames} onClick={onClick}>
-        <p className="text-2xl">{number}</p>
-      </button>
+      <div className={`${classNames} animate-bounce`}>
+        <p>...</p>
+      </div>
     );
-  }
   return (
     <div className={classNames}>
-      <p className="text-2xl">{number}</p>
+      <p>{message}</p>
     </div>
   );
 };
 
-const VARIANTS = {
-  active: "border-accent-secondary bg-accent-secondary text-black",
-  default: "border-white text-white",
-  inactive: "border-muted-fg text-muted-fg",
-};
+const ChatMessageContainer = ({
+  children,
+  sender,
+}: PropsWithChildren & { sender: TSender }) => (
+  <div
+    className={`flex items-start gap-4 ${
+      sender === "ai" ? "justify-start" : "justify-end"
+    }`}
+  >
+    {children}
+  </div>
+);
 
-const SelectOption = (props: {
-  variant: "active" | "default" | "inactive";
-  text: string;
-  onClick: () => void;
-  className?: string;
-}) => {
-  const { onClick, text, variant, className = "" } = props;
-  return (
-    <button
-      onClick={() => onClick()}
-      className={`border  px-10 py-5   hover:opacity-50 ${VARIANTS[variant]} ${className}`}
-    >
-      {text}
-    </button>
-  );
-};
-
-const IndustryOption = ({
-  industry,
-  activeIndustry,
-  onClick,
+const Message = ({
+  sender,
+  message,
+  isGhost,
 }: {
-  industry: string;
-  activeIndustry: string;
-  onClick: (industry: string) => void;
+  sender: TSender;
+  message?: string;
+  isGhost?: boolean;
 }) => {
-  const isActive = activeIndustry === industry;
-  const getVariant = () => {
-    if (!activeIndustry) return "default";
-    if (activeIndustry === industry) return "active";
-    return "inactive";
-  };
   return (
-    <SelectOption
-      onClick={() => onClick(industry)}
-      text={industry}
-      variant={getVariant()}
-    />
-  );
-};
-
-const IndustrySelectStep = () => {
-  const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
-    useInterviewCreator();
-  const [activeIndustry, setActiveIndustry] = useState(
-    interviewCreatorState.interviewConfig.selectedIndustry
-  );
-  const goToNextStep = () =>
-    dispatchInterviewCreatorUpdate({
-      type: "GO_TO_NEXT_STEP",
-    });
-
-  useEffect(() => {
-    return () =>
-      dispatchInterviewCreatorUpdate({
-        type: "SET_INDUSTRY",
-        payload: activeIndustry,
-      });
-  }, [activeIndustry]);
-
-  return (
-    <Container>
-      <Heading className="mt-10">Select your field of work.</Heading>
-
-      <Panel className="mt-14 flex h-[450px] flex-wrap gap-4 overflow-y-scroll">
-        {INDUSTRIES.map((industry) => (
-          <IndustryOption
-            activeIndustry={activeIndustry}
-            onClick={(industry) => setActiveIndustry(industry)}
-            industry={industry}
-            key={industry}
-          />
-        ))}
-      </Panel>
-      <div className="mt-8 flex items-center justify-between">
-        <Heading size={3} variant="secondary">
-          {activeIndustry}
-        </Heading>
-        <Button onClick={() => goToNextStep()}>Next</Button>
-      </div>
-    </Container>
-  );
-};
-
-const TopicSelectStep = () => {
-  const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
-    useInterviewCreator();
-  const [selectedTopics, setSelectedTopics] = useState(
-    interviewCreatorState.interviewConfig.selectedTopics
-  );
-  const handleTopicClick = (topic: string) => {
-    if (selectedTopics.includes(topic)) {
-      const index = selectedTopics.indexOf(topic);
-      const temp = [...selectedTopics];
-      temp.splice(index, 1);
-      setSelectedTopics(temp);
-      return;
-    }
-    setSelectedTopics((prev) => [...prev, topic]);
-  };
-
-  const getOptionVariant = (topic: string) => {
-    if (selectedTopics.includes(topic)) return "active";
-    return "default";
-  };
-
-  useEffect(() => {
-    return () =>
-      dispatchInterviewCreatorUpdate({
-        type: "SET_TOPICS",
-        payload: selectedTopics,
-      });
-  }, [selectedTopics]);
-  return (
-    <Container>
-      <Heading className="mt-10">Select relevant topics.</Heading>
-
-      <Panel className="mt-14 flex h-[450px] flex-wrap gap-4 overflow-y-scroll">
-        {TOPICS.map((topic) => (
-          <SelectOption
-            key={topic}
-            onClick={() => handleTopicClick(topic)}
-            text={topic}
-            variant={getOptionVariant(topic)}
-          />
-        ))}
-      </Panel>
-      <div className="mt-8 flex items-center justify-between">
-        <Button
-          className="ml-auto"
-          onClick={() =>
-            dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" })
-          }
-        >
-          Next
-        </Button>
-      </div>
-    </Container>
-  );
-};
-
-const YearsOfExperienceSelectStep = () => {
-  const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
-    useInterviewCreator();
-  const initialState = interviewCreatorState.interviewConfig.yearsOfExperience;
-
-  const [selectedYears, setSelectedYears] = useState<number | undefined>(
-    initialState
-  );
-
-  const getBottomText = () => {
-    if (selectedYears === undefined) return;
-    const yearStr = selectedYears > 1 ? "years" : "year";
-    return `${selectedYears} ${yearStr} of experience`;
-  };
-
-  useEffect(() => {
-    return () =>
-      dispatchInterviewCreatorUpdate({
-        type: "SET_YEARS_OF_EXPERIENCE",
-        payload: selectedYears,
-      });
-  }, [selectedYears]);
-  return (
-    <Container>
-      <Heading className="mt-10">Select target years of experience.</Heading>
-
-      <Panel className="mt-14 flex  items-center gap-4">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((years) => (
-          <SelectOption
-            key={years}
-            className="grow"
-            onClick={() => setSelectedYears(years)}
-            text={years.toString()}
-            variant={selectedYears === years ? "active" : "default"}
-          />
-        ))}
-      </Panel>
-      <div className="mt-8 flex items-center justify-between">
-        {!!selectedYears && (
-          <Heading size={3} variant="secondary">
-            {getBottomText()}
-          </Heading>
-        )}
-        <Button
-          className="ml-auto"
-          onClick={() =>
-            dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" })
-          }
-        >
-          Next
-        </Button>
-      </div>
-    </Container>
-  );
-};
-
-const STEPS = [
-  <IndustrySelectStep key="industry-select" />,
-  <TopicSelectStep key="topic-select" />,
-  <YearsOfExperienceSelectStep key="years-of-experience-select" />,
-];
-
-const MockInterviewBuilder: NextPage = () => {
-  const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
-    useInterviewCreator();
-  const { step } = interviewCreatorState;
-
-  const setStep = (newStep: number) =>
-    dispatchInterviewCreatorUpdate({ type: "SET_STEP", payload: newStep });
-
-  return (
-    <main className="pt-20">
-      <>
-        <Container className="flex gap-8">
-          {STEPS.map((_, i) => (
-            <>
-              <CircleDigit
-                onClick={() => setStep(i)}
-                number={i + 1}
-                variant={i === step ? "default" : "disabled"}
-              />
-            </>
-          ))}
-        </Container>
-        {STEPS[step]}
-      </>
-    </main>
+    <ChatMessageContainer sender={sender}>
+      {sender === "ai" && (
+        <Image
+          src={logoSrc}
+          alt="Interview mate portrait photo"
+          className="block h-14 w-14 object-contain"
+          height={56}
+          width={56}
+        />
+      )}
+      <ChatBubble sender={sender} message={message} isTyping={isGhost} />
+      {sender === "user" && (
+        <Image
+          src={logoSrc}
+          alt="User's portrait photo"
+          className="block h-14 w-14 object-contain"
+          height={56}
+          width={56}
+        />
+      )}
+    </ChatMessageContainer>
   );
 };
 
 const MockInterviewPage: NextPage = () => {
+  const router = useRouter();
+  const params = router.query;
+
+  const result = getInterviewConfigFromParams(
+    params.toString()
+  ) as TInterviewConfig;
+
+  console.log(result);
   return (
-    <InterviewCreatorProvider>
-      <MockInterviewBuilder />
-    </InterviewCreatorProvider>
+    <div className="fixed inset-0 h-full w-full">
+      <Container className="mx-auto h-screen">
+        <div className="flex flex-col gap-5 p-5">
+          <Message sender="ai" message="SDAdoaisdj iafpaug pid paifg afgn pi" />
+          <Message
+            sender="user"
+            message="SDAdoaisdj iafpaug pid paifg afgn pi"
+          />
+        </div>
+      </Container>
+    </div>
   );
 };
 
