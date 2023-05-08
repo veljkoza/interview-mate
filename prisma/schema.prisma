@@ -27,21 +27,81 @@ model Example {
 
 // Necessary for Next auth
 model Account {
-    id                String  @id @default(cuid())
-    userId            String
-    type              String
-    provider          String
-    providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
-    expires_at        Int?
-    token_type        String?
-    scope             String?
-    id_token          String? // @db.Text
-    session_state     String?
-    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                       String  @id @default(cuid())
+    userId                   String
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token_expires_in Int?
+    refresh_token            String? // @db.Text
+    access_token             String? // @db.Text
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String? // @db.Text
+    session_state            String?
+    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
+}
+
+enum SENDER {
+    USER
+    INTERVIEWER
+}
+
+model MessageMetadata {
+    id           String    @id @default(cuid())
+    satisfaction Int
+    feedback     String
+    Message      Message[]
+}
+
+model Message {
+    id                String          @id @default(cuid())
+    content           String
+    sender            SENDER
+    metadata          MessageMetadata @relation(fields: [messageMetadataId], references: [id])
+    interview         Interview       @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+    interviewId       String
+    messageMetadataId String
+}
+
+enum InterviewStatus {
+    COMPLETED
+    ACTIVE
+}
+
+model Industry {
+    id                       String                  @id @default(cuid())
+    name                     String
+    topics                   Topic[]
+    InterviewConfiguration   InterviewConfiguration? @relation(fields: [interviewConfigurationId], references: [id])
+    interviewConfigurationId String?
+}
+
+model Topic {
+    id                     String                   @id @default(cuid())
+    name                   String
+    InterviewConfiguration InterviewConfiguration[]
+    Industry               Industry?                @relation(fields: [industryId], references: [id])
+    industryId             String?
+}
+
+model InterviewConfiguration {
+    id         String      @id @default(cuid())
+    topics     Topic[]
+    industries Industry[]
+    Interview  Interview[]
+}
+
+model Interview {
+    id                  String                 @id @default(cuid())
+    messages            Message[]
+    overallSatisfaction String
+    status              InterviewStatus
+    configuration       InterviewConfiguration @relation(fields: [configurationId], references: [id])
+    configurationId     String
 }
 
 model Session {

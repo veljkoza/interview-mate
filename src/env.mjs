@@ -23,6 +23,7 @@ const server = z.object({
   DISCORD_CLIENT_SECRET: z.string(),
   GITHUB_ID: z.string(),
   GITHUB_SECRET: z.string(),
+  JWT_SECRET: z.string(),
 });
 
 /**
@@ -48,6 +49,7 @@ const processEnv = {
   GITHUB_SECRET: process.env.GITHUB_SECRET,
   DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
   DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+  JWT_SECRET: process.env.JWT_SECRET,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

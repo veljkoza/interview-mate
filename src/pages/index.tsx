@@ -34,7 +34,7 @@ const Home: NextPage = () => {
       <main className="relative">
         <AppHeader />
         <div className="relative flex flex-col pt-20">
-          {/* <AuthShowcase /> */}
+          <AuthShowcase />
           <Container
             tag="section"
             className="flex h-screen w-full grow items-center gap-4 "
