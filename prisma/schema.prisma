@@ -73,11 +73,11 @@ enum InterviewStatus {
 }
 
 model Industry {
-    id                       String                  @id @default(cuid())
+    id                       String                   @id @default(cuid())
     name                     String
     topics                   Topic[]
-    InterviewConfiguration   InterviewConfiguration? @relation(fields: [interviewConfigurationId], references: [id])
     interviewConfigurationId String?
+    InterviewConfiguration   InterviewConfiguration[]
 }
 
 model Topic {
@@ -89,19 +89,24 @@ model Topic {
 }
 
 model InterviewConfiguration {
-    id         String      @id @default(cuid())
-    topics     Topic[]
-    industries Industry[]
-    Interview  Interview[]
+    id                String      @id @default(cuid())
+    yearsOfExperience Int
+    durationInMinutes Int         @default(15)
+    topics            Topic[]
+    industry          Industry    @relation(fields: [industryId], references: [id])
+    Interview         Interview[]
+    industryId        String
 }
 
 model Interview {
     id                  String                 @id @default(cuid())
     messages            Message[]
-    overallSatisfaction String
+    overallSatisfaction Int?
     status              InterviewStatus
     configuration       InterviewConfiguration @relation(fields: [configurationId], references: [id])
     configurationId     String
+    User                User?                  @relation(fields: [userId], references: [id])
+    userId              String?
 }
 
 model Session {
@@ -113,13 +118,14 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String      @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?     @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    interviews    Interview[]
 }
 
 model VerificationToken {

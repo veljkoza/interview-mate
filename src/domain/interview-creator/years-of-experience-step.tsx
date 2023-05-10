@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Button } from "~/components/buttons";
 import { Container } from "~/components/containers";
 import { Panel } from "~/components/panel";
@@ -9,22 +8,24 @@ import { useInterviewCreator } from "./context/interview-creator.context";
 export const YearsOfExperienceSelectStep = () => {
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
     useInterviewCreator();
-  const initialState = interviewCreatorState.interviewConfig.yearsOfExperience;
+  const selectedYears = interviewCreatorState.interviewConfig.yearsOfExperience;
 
-  const [selectedYears, setSelectedYears] = useState<number>(initialState);
   const getBottomText = () => {
-    if (selectedYears === undefined) return;
+    if (selectedYears === undefined || selectedYears <= 0) return;
     const yearStr = selectedYears > 1 ? "years" : "year";
     return `${selectedYears} ${yearStr} of experience`;
   };
 
-  useEffect(() => {
-    return () =>
-      dispatchInterviewCreatorUpdate({
-        type: "SET_YEARS_OF_EXPERIENCE",
-        payload: selectedYears,
-      });
-  }, [selectedYears]);
+  const handleOptionClick = (years: number) =>
+    dispatchInterviewCreatorUpdate({
+      type: "SET_YEARS_OF_EXPERIENCE",
+      payload: years,
+    });
+
+  const onNextClick = () => {
+    dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" });
+  };
+
   return (
     <Container>
       <Heading className="mt-10">Select target years of experience.</Heading>
@@ -34,7 +35,7 @@ export const YearsOfExperienceSelectStep = () => {
           <FocusedOption
             key={years}
             className="grow"
-            onClick={() => setSelectedYears(years)}
+            onClick={() => handleOptionClick(years)}
             item={years}
             activeItem={selectedYears}
           />
@@ -46,12 +47,7 @@ export const YearsOfExperienceSelectStep = () => {
             {getBottomText()}
           </Heading>
         )}
-        <Button
-          className="ml-auto"
-          onClick={() =>
-            dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" })
-          }
-        >
+        <Button className="ml-auto" onClick={onNextClick}>
           Next
         </Button>
       </div>

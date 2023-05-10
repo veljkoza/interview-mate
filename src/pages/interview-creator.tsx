@@ -6,12 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Container } from "~/components/containers";
 import { ROUTES } from "~/consts/navigation";
-import {
-  IndustrySelectStep,
-  TopicSelectStep,
-  YearsOfExperienceSelectStep,
-  InterviewDurationSelectStep,
-} from "~/domain/interview-creator";
+
 import { STEPS_LENGTH } from "~/domain/interview-creator/consts/consts";
 import { STEPS } from "~/domain/interview-creator/consts/steps";
 import {

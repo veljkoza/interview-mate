@@ -7,14 +7,22 @@ import {
 } from "react";
 import { STEPS_LENGTH } from "../consts/consts";
 
+import { RouterInputs } from "~/utils/api";
+import { Industry, Topic } from "@prisma/client";
+
+const initialInterviewConfig: RouterInputs["interviews"]["create"] = {
+  topics: [],
+  industry: {
+    id: "-1",
+    name: "",
+  },
+  yearsOfExperience: -1,
+  durationInMinutes: -1,
+};
+
 const DEFAULT_CONTEXT_VALUE = {
   step: 0,
-  interviewConfig: {
-    selectedIndustry: "",
-    selectedTopics: [] as string[],
-    yearsOfExperience: 0,
-    durationInMinutes: 0,
-  },
+  interviewConfig: initialInterviewConfig,
 };
 
 type TInterviewCreatorValue = typeof DEFAULT_CONTEXT_VALUE;
@@ -65,13 +73,12 @@ const interviewCreatorReducer = (
         step: payload as number,
       };
     case "SET_INDUSTRY":
-      if (payload === undefined && typeof payload !== "string")
-        return prevState;
+      if (payload === undefined || payload === null) return prevState;
       return {
         ...prevState,
         interviewConfig: {
           ...prevState.interviewConfig,
-          selectedIndustry: payload as string,
+          industry: payload as Industry,
         },
       };
     case "SET_TOPICS":
@@ -79,7 +86,7 @@ const interviewCreatorReducer = (
         ...prevState,
         interviewConfig: {
           ...prevState.interviewConfig,
-          selectedTopics: payload as string[],
+          topics: payload as Topic[],
         },
       };
     case "SET_YEARS_OF_EXPERIENCE":

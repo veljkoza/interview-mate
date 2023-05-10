@@ -9,23 +9,20 @@ import { useInterviewCreator } from "./context/interview-creator.context";
 export const InterviewDurationSelectStep = () => {
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
     useInterviewCreator();
-  const initialState = interviewCreatorState.interviewConfig.durationInMinutes;
-
-  const [selectedInterviewDuration, setSelectedInterviewDuration] =
-    useState<number>(initialState);
-  console.log({ selectedInterviewDuration: !selectedInterviewDuration });
+  const selectedInterviewDuration =
+    interviewCreatorState.interviewConfig.durationInMinutes;
 
   const getBottomText = () => {
+    if (selectedInterviewDuration <= 0) return "";
     return `${selectedInterviewDuration} minutes`;
   };
 
-  useEffect(() => {
-    return () =>
-      dispatchInterviewCreatorUpdate({
-        type: "SET_INTERVIEW_DURATION",
-        payload: selectedInterviewDuration,
-      });
-  }, [selectedInterviewDuration]);
+  const handleOptionClick = (duration: number) =>
+    dispatchInterviewCreatorUpdate({
+      type: "SET_INTERVIEW_DURATION",
+      payload: duration,
+    });
+
   return (
     <Container>
       <Heading className="mt-10">Select interview duration.</Heading>
@@ -35,7 +32,7 @@ export const InterviewDurationSelectStep = () => {
           <FocusedOption
             key={duration}
             className="grow"
-            onClick={() => setSelectedInterviewDuration(duration)}
+            onClick={() => handleOptionClick(duration)}
             item={duration}
             activeItem={selectedInterviewDuration}
           />
