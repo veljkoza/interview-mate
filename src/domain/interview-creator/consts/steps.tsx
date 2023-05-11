@@ -11,3 +11,4 @@ export const STEPS = [
   <InterviewDurationSelectStep key="interview-duration-select" />,
   <InterviewCreatorSummaryStep key="interview-creator-summary-step" />,
 ];
+export const STEPS_LENGTH = STEPS.length;

@@ -13,7 +13,7 @@ export const appRouter = createTRPCRouter({
   example: exampleRouter,
   topic: topicRouter,
   industries: industryRouter,
-  interviews: interviewRouter,
+  interview: interviewRouter,
 });
 
 // export type definition of API

@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import { prisma } from "~/server/db";
 const IndustrySchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -10,6 +11,27 @@ const TopicSchema = z.object({
   id: z.string(),
   name: z.string(),
 });
+
+const interviewDTO = {
+  id: true,
+  configuration: {
+    select: {
+      industry: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      topics: true,
+      durationInMinutes: true,
+      yearsOfExperience: true,
+    },
+  },
+  messages: true,
+  status: true,
+  overallSatisfaction: true,
+};
+
 export const interviewRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.industry.findMany();
@@ -59,20 +81,26 @@ export const interviewRouter = createTRPCRouter({
           },
           status: "ACTIVE",
         },
-        select: {
-          configuration: {
-            select: {
-              industry: true,
-              topics: true,
-              durationInMinutes: true,
-              yearsOfExperience: true,
-            },
-          },
-          messages: true,
-          status: true,
-          overallSatisfaction: true,
-        },
+        select: interviewDTO,
       });
+
+      return interview;
+    }),
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const interview = await prisma.interview.findFirst({
+        where: {
+          id: input.id,
+        },
+        select: interviewDTO,
+      });
+      if (!interview) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "There's no interview with that id",
+        });
+      }
 
       return interview;
     }),

@@ -5,12 +5,12 @@ import {
   useContext,
   useReducer,
 } from "react";
-import { STEPS_LENGTH } from "../consts/consts";
 
 import { RouterInputs } from "~/utils/api";
 import { Industry, Topic } from "@prisma/client";
+import { STEPS_LENGTH } from "../consts/steps";
 
-const initialInterviewConfig: RouterInputs["interviews"]["create"] = {
+const initialInterviewConfig: RouterInputs["interview"]["create"] = {
   topics: [],
   industry: {
     id: "-1",
@@ -60,7 +60,6 @@ const interviewCreatorReducer = (
   switch (type) {
     case "GO_TO_NEXT_STEP":
       const nextStep = prevState.step + 1;
-      console.log(nextStep);
       if (nextStep > STEPS_LENGTH) return prevState;
       return {
         ...prevState,

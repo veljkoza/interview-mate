@@ -1,16 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import type { NextPage } from "next";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { Container } from "~/components/containers";
-import { ROUTES } from "~/consts/navigation";
 
-import { STEPS_LENGTH } from "~/domain/interview-creator/consts/consts";
 import { STEPS } from "~/domain/interview-creator/consts/steps";
 import {
-  TInterviewConfig,
   useInterviewCreator,
   InterviewCreatorProvider,
 } from "~/domain/interview-creator/context/interview-creator.context";
@@ -43,33 +35,6 @@ const CircleDigit = ({
   );
 };
 
-// const getUrlParams = (interviewConfig: TInterviewConfig) => {
-//   const params = new URLSearchParams();
-//   for (const key in interviewConfig) {
-//     const param = interviewConfig[key];
-//     if (param !== undefined) {
-//       params.append(key, interviewConfig[key] as string);
-//     }
-//   }
-
-//   const urlParams = new URLSearchParams(params.toString());
-
-//   const test: { [k: string]: any } = {
-//     selectedIndustry: "",
-//     selectedTopics: [] as string[],
-//     yearsOfExperience: 0,
-//     durationInMinutes: 0,
-//   };
-//   params.forEach((value, key) => {
-//     if (key.includes(".")) {
-//       const [parentKey, childKey] = key.split(".");
-//       test[parentKey][childKey] = value;
-//     } else {
-//       test[key] = value;
-//     }
-//   });
-// };
-
 const MockInterviewBuilder: NextPage = () => {
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
     useInterviewCreator();
@@ -77,16 +42,7 @@ const MockInterviewBuilder: NextPage = () => {
 
   const setStep = (newStep: number) =>
     dispatchInterviewCreatorUpdate({ type: "SET_STEP", payload: newStep });
-  const router = useRouter();
-  useEffect(() => {
-    if (step === STEPS_LENGTH) {
-      const params = new URLSearchParams(
-        interviewCreatorState.interviewConfig as unknown as string
-      );
 
-      router.replace(`${ROUTES["mock-interview"]}?${params.toString()}`);
-    }
-  }, [step, interviewCreatorState.interviewConfig]);
   return (
     <main className="pt-20">
       <>
