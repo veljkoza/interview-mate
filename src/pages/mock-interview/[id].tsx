@@ -5,7 +5,7 @@ import logoSrc from "assets/logo2.png";
 import Image from "next/image";
 import { getInterviewConfigFromParams } from "~/domain/mock-interview/consts";
 import type { TInterviewConfig } from "~/domain/interview-creator/context/interview-creator.context";
-import { type PropsWithChildren, useEffect, useState } from "react";
+import { type PropsWithChildren, useEffect, useState, useRef } from "react";
 import { Panel } from "~/components/panel";
 import { RiMenu4Fill } from "react-icons/ri";
 import { BsSend } from "react-icons/bs";
@@ -13,13 +13,13 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import SuperJSON from "superjson";
-import { api } from "~/utils/api";
+import { RouterOutputs, api } from "~/utils/api";
+import type { SENDER } from "@prisma/client";
 
-type TSender = "ai" | "user";
-
-const BUBBLE_VARIANTS: Record<TSender, string> = {
-  ai: " text-accent-secondary border border-accent-secondary opacity-60",
-  user: "bg-canvas-subtle text-muted-fg border border-muted-fg",
+const BUBBLE_VARIANTS: Record<SENDER, string> = {
+  INTERVIEWER:
+    " text-accent-secondary border border-accent-secondary opacity-60",
+  USER: "bg-canvas-subtle text-muted-fg border border-muted-fg",
 };
 
 const ChatBubble = ({
@@ -27,7 +27,7 @@ const ChatBubble = ({
   message = "",
   isTyping = false,
 }: {
-  sender: TSender;
+  sender: SENDER;
   message?: string;
   isTyping?: boolean;
 }) => {
@@ -49,10 +49,10 @@ const ChatBubble = ({
 const ChatMessageContainer = ({
   children,
   sender,
-}: PropsWithChildren & { sender: TSender }) => (
+}: PropsWithChildren & { sender: SENDER }) => (
   <div
     className={`flex items-start gap-4 ${
-      sender === "ai" ? "justify-start" : "justify-end"
+      sender === "INTERVIEWER" ? "justify-start" : "justify-end"
     }`}
   >
     {children}
@@ -64,13 +64,13 @@ const Message = ({
   message,
   isGhost,
 }: {
-  sender: TSender;
+  sender: SENDER;
   message?: string;
   isGhost?: boolean;
 }) => {
   return (
     <ChatMessageContainer sender={sender}>
-      {sender === "ai" && (
+      {sender === "INTERVIEWER" && (
         <Image
           src={logoSrc}
           alt="Interview mate portrait photo"
@@ -80,7 +80,7 @@ const Message = ({
         />
       )}
       <ChatBubble sender={sender} message={message} isTyping={isGhost} />
-      {sender === "user" && (
+      {sender === "USER" && (
         <Image
           src={logoSrc}
           alt="User's portrait photo"
@@ -93,28 +93,93 @@ const Message = ({
   );
 };
 
+const scrollToBottom = <T extends HTMLDivElement>(el: T) => {
+  el.scrollTop = el.scrollHeight;
+};
+
+type TMessageDTO = RouterOutputs["interview"]["sendMessage"];
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
+
 const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
-  const { data: interview } = api.interview.getById.useQuery({ id });
-  const sendMessage = () => console.log("send message");
   const [messageText, setMessageText] = useState("");
+  const { interview: interviewTrpc } = api.useContext();
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesContainer = messagesContainerRef.current;
+  const { data: interview } = api.interview.getById.useQuery(
+    { id },
+    { onSuccess: () => setTimeout(() => scrollToBottomOfMessages(), 150) }
+  );
+  const addMessageToState = (message: TMessageDTO) => {
+    if (!interview?.id) return;
+    interviewTrpc.getById.setData({ id: interview.id }, (prev) => {
+      if (prev) {
+        return {
+          ...prev,
+          messages: [...prev.messages, message],
+        };
+      }
+      return undefined;
+    });
+  };
+
+  const scrollToBottomOfMessages = () => {
+    if (messagesContainer) {
+      scrollToBottom(messagesContainer);
+    }
+  };
+
+  // Gets introduction message and adds it to the cached interview data
+  api.interview.getIntroductionMessage.useQuery(
+    { id },
+    {
+      onSuccess: addMessageToState,
+      enabled: interview?.messages.length === 0,
+    }
+  );
+
+  const { mutate: sendMessage, isLoading: isSendingMessageLoading } =
+    api.interview.sendMessage.useMutation({
+      onSuccess: (res) => {
+        addMessageToState(res);
+        scrollToBottomOfMessages();
+      },
+    });
 
   if (!interview) return <div>404</div>;
+
+  const handleSubmit = () => {
+    sendMessage({ id: interview.id, content: messageText, sender: "USER" });
+    setTimeout(() => scrollToBottomOfMessages(), 100);
+    setMessageText("");
+  };
+
   const { messages } = interview;
   return (
-    <div className="relative h-screen pt-24">
+    <div className="relative flex h-screen flex-col pt-24">
       <Container className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between py-8">
         <button className="ml-auto">
           <RiMenu4Fill className="ml-auto text-4xl text-accent-secondary " />
         </button>
       </Container>
-      <Container className="relative mx-auto flex  h-full flex-col py-5">
-        <div className="flex flex-col gap-5 p-5">
-          <Message sender="ai" message={messageText} />
-          <Message sender="user" message={messageText} />
+      <Container className="relative mx-auto flex  h-full flex-1 flex-col py-5">
+        <div
+          className="flex flex-1 flex-col gap-5 overflow-y-scroll p-5"
+          ref={messagesContainerRef}
+        >
+          {messages.map((message) => (
+            <Message
+              key={message.id}
+              sender={message.sender}
+              message={message.content}
+            />
+          ))}
+          {isSendingMessageLoading && <Message isGhost sender="USER" />}
         </div>
         <form
-          onSubmit={() => sendMessage()}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
           className="mt-auto flex w-full gap-5"
         >
           <Panel className="h-16 w-full p-0">

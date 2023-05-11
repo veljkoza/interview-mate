@@ -58,13 +58,13 @@ model MessageMetadata {
 }
 
 model Message {
-    id                String          @id @default(cuid())
-    content           String
+    id                String           @id @default(cuid())
+    content           String           @db.Text
     sender            SENDER
-    metadata          MessageMetadata @relation(fields: [messageMetadataId], references: [id])
-    interview         Interview       @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+    metadata          MessageMetadata? @relation(fields: [messageMetadataId], references: [id])
+    interview         Interview        @relation(fields: [interviewId], references: [id], onDelete: Cascade)
     interviewId       String
-    messageMetadataId String
+    messageMetadataId String?
 }
 
 enum InterviewStatus {
