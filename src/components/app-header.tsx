@@ -10,7 +10,7 @@ import { RiLoaderFill, RiUser4Fill } from "react-icons/ri";
 import { Fragment } from "react";
 import Image from "next/image";
 
-export default function Example() {
+export default function UserPopover() {
   const { data: session, status } = useSession();
   if (status === "loading")
     return (
@@ -61,7 +61,9 @@ export default function Example() {
             leaveTo="opacity-0 translate-y-1"
           >
             <Popover.Panel className="absolute left-1/2 z-10 mt-3 flex -translate-x-1/2 transform  flex-col whitespace-nowrap rounded-lg border-2 border-accent-secondary bg-background">
-              <button className=" p-4 text-left">My interviews</button>
+              <Link href={ROUTES["my-interviews"]} className=" p-4 text-left">
+                My interviews
+              </Link>
               <button className=" p-4 text-left">My profile</button>
               <button className=" p-4 text-left">Log out</button>
             </Popover.Panel>
@@ -75,7 +77,9 @@ export default function Example() {
 export const AppHeader = () => (
   <header className="absolute left-0 top-0  z-10 w-full">
     <Container className="flex items-center justify-between py-8 ">
-      <Logo className="h-16 w-16 cursor-pointer" />
+      <Link href="/">
+        <Logo className="h-16 w-16 cursor-pointer" />
+      </Link>
       <HamburgerMenu />
       <nav className="hidden lg:block">
         <ul className="flex items-center gap-14 text-accent-secondary">
@@ -87,7 +91,7 @@ export const AppHeader = () => (
           <Button href={ROUTES["interview-creator"]} variant="mini">
             Have a mock interview
           </Button>
-          <Example />
+          <UserPopover />
         </ul>
       </nav>
     </Container>

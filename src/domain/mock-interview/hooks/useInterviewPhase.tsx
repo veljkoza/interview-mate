@@ -1,4 +1,3 @@
-import { Interview } from "@prisma/client";
 import { useMemo } from "react";
 import { TInterviewDTO } from "~/pages/mock-interview/[id]";
 
@@ -23,6 +22,7 @@ export const useInterviewPhase = ({
     if (interviewMessages.length === 3) return "TECHNICAL_PART_ANNOUNCEMENT";
     if (interviewMessages.length === 4) return "ASK_FIRST_QUESTION";
     if (interviewMessages.length > 4) return "TECHNICAL";
+    return "TECHNICAL";
   }, [interview?.messages.length]);
 
   const lastMessageSentByUser = interview?.messages.at(-1)?.sender === "USER";
