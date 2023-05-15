@@ -55,11 +55,20 @@ model MessageMetadata {
     satisfaction Int
     feedback     String
     Message      Message[]
+    question     String?
+}
+
+enum InterviewPhase {
+    INTRODUCTION
+    SOFT_SKILLS
+    TECHNICAL
+    END
 }
 
 model Message {
     id                String           @id @default(cuid())
     content           String           @db.Text
+    isQuestion        Boolean?         @default(false)
     sender            SENDER
     metadata          MessageMetadata? @relation(fields: [messageMetadataId], references: [id])
     interview         Interview        @relation(fields: [interviewId], references: [id], onDelete: Cascade)
@@ -107,6 +116,7 @@ model Interview {
     configurationId     String
     User                User?                  @relation(fields: [userId], references: [id])
     userId              String?
+    phase               InterviewPhase
 }
 
 model Session {

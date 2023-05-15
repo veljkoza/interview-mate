@@ -5,4 +5,5 @@ export const messageDTO = {
   sender: true,
   interviewId: true,
   messageMetadataId: true,
+  isQuestion: true,
 };

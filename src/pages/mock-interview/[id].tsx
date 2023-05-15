@@ -5,7 +5,13 @@ import logoSrc from "assets/logo2.png";
 import Image from "next/image";
 import { getInterviewConfigFromParams } from "~/domain/mock-interview/consts";
 import type { TInterviewConfig } from "~/domain/interview-creator/context/interview-creator.context";
-import { type PropsWithChildren, useEffect, useState, useRef } from "react";
+import {
+  type PropsWithChildren,
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+} from "react";
 import { Panel } from "~/components/panel";
 import { RiMenu4Fill } from "react-icons/ri";
 import { BsSend } from "react-icons/bs";
@@ -15,6 +21,7 @@ import { prisma } from "~/server/db";
 import SuperJSON from "superjson";
 import { RouterOutputs, api } from "~/utils/api";
 import type { SENDER } from "@prisma/client";
+import { useInterview } from "~/domain/mock-interview/hooks/useInterview";
 
 const BUBBLE_VARIANTS: Record<SENDER, string> = {
   INTERVIEWER:
@@ -93,67 +100,21 @@ const Message = ({
   );
 };
 
-const scrollToBottom = <T extends HTMLDivElement>(el: T) => {
-  el.scrollTop = el.scrollHeight;
-};
-
-type TMessageDTO = RouterOutputs["interview"]["sendMessage"];
+export type TInterviewDTO = RouterOutputs["interview"]["create"];
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
 const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
-  const [messageText, setMessageText] = useState("");
-  const { interview: interviewTrpc } = api.useContext();
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const messagesContainer = messagesContainerRef.current;
-  const { data: interview } = api.interview.getById.useQuery(
-    { id },
-    { onSuccess: () => setTimeout(() => scrollToBottomOfMessages(), 150) }
-  );
-  const addMessageToState = (message: TMessageDTO) => {
-    if (!interview?.id) return;
-    interviewTrpc.getById.setData({ id: interview.id }, (prev) => {
-      if (prev) {
-        return {
-          ...prev,
-          messages: [...prev.messages, message],
-        };
-      }
-      return undefined;
-    });
-  };
-
-  const scrollToBottomOfMessages = () => {
-    if (messagesContainer) {
-      scrollToBottom(messagesContainer);
-    }
-  };
-
-  // Gets introduction message and adds it to the cached interview data
-  api.interview.getIntroductionMessage.useQuery(
-    { id },
-    {
-      onSuccess: addMessageToState,
-      enabled: interview?.messages.length === 0,
-    }
-  );
-
-  const { mutate: sendMessage, isLoading: isSendingMessageLoading } =
-    api.interview.sendMessage.useMutation({
-      onSuccess: (res) => {
-        addMessageToState(res);
-        scrollToBottomOfMessages();
-      },
-    });
+  const {
+    interview,
+    isSendingMessageLoading,
+    handleSubmit,
+    messageText,
+    setMessageText,
+    messagesContainerRef,
+  } = useInterview({ id });
 
   if (!interview) return <div>404</div>;
 
-  const handleSubmit = () => {
-    sendMessage({ id: interview.id, content: messageText, sender: "USER" });
-    setTimeout(() => scrollToBottomOfMessages(), 100);
-    setMessageText("");
-  };
-
-  const { messages } = interview;
   return (
     <div className="relative flex h-screen flex-col pt-24">
       <Container className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between py-8">
@@ -166,7 +127,7 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
           className="flex flex-1 flex-col gap-5 overflow-y-scroll p-5"
           ref={messagesContainerRef}
         >
-          {messages.map((message) => (
+          {interview.messages.map((message) => (
             <Message
               key={message.id}
               sender={message.sender}

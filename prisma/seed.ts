@@ -106,17 +106,27 @@ export const INDUSTRIES = [
 
 const topicEntries = TOPICS.map((topic) => ({
   name: topic,
-  industryId: "clhfd5k680000ihizh7qm8sqq",
+  industryId: "clhmau5bh0000ihwd9mnx7ztv",
 }));
 const industryEntries = INDUSTRIES.map((industry) => ({ name: industry }));
 
 const prisma = new PrismaClient();
 async function main() {
-  // for (const industry of industryEntries) {
-  //   await prisma.industry.create({ data: industry });
-  // }
+  for (const industry of industryEntries) {
+    await prisma.industry.create({ data: industry });
+  }
+  const frontEndSeed = await prisma.industry.findFirst({
+    where: {
+      name: "Front-end development",
+    },
+  });
   for (const topic of topicEntries) {
-    await prisma.topic.create({ data: topic });
+    await prisma.topic.create({
+      data: {
+        ...topic,
+        industryId: frontEndSeed?.id,
+      },
+    });
   }
 }
 
