@@ -1,17 +1,8 @@
 import type { GetStaticProps, InferGetStaticPropsType, NextPage } from "next";
-import { useRouter } from "next/router";
 import { Container } from "~/components/containers";
 import logoSrc from "assets/logo2.png";
 import Image from "next/image";
-import { getInterviewConfigFromParams } from "~/domain/mock-interview/consts";
-import type { TInterviewConfig } from "~/domain/interview-creator/context/interview-creator.context";
-import {
-  type PropsWithChildren,
-  useEffect,
-  useState,
-  useRef,
-  useMemo,
-} from "react";
+import { type PropsWithChildren } from "react";
 import { Panel } from "~/components/panel";
 import { RiMenu4Fill } from "react-icons/ri";
 import { BsSend } from "react-icons/bs";
@@ -165,7 +156,7 @@ export const getStaticProps: GetStaticProps<{ id: string }> = async (
 ) => {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: { prisma, session: null },
+    ctx: { prisma, currentUser: null },
     transformer: SuperJSON,
   });
 
