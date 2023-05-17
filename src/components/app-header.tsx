@@ -9,25 +9,29 @@ import { useSession } from "next-auth/react";
 import { RiLoaderFill, RiUser4Fill } from "react-icons/ri";
 import { Fragment } from "react";
 import Image from "next/image";
+import { SignInButton, UserButton, useClerk } from "@clerk/nextjs";
 
 export default function UserPopover() {
-  const { data: session, status } = useSession();
-  if (status === "loading")
+  const { user, loaded, signOut } = useClerk();
+
+  if (!user) return <SignInButton />;
+  // const { data: session, status } = useSession();
+  if (!loaded)
     return (
-      <div>
+      <div className="animate-spin">
         <RiLoaderFill />
       </div>
     );
 
   const getImg = () => {
-    const userImg = session?.user.image;
+    const userImg = user?.profileImageUrl;
     if (userImg) {
       return (
         <Image
           height={40}
           width={40}
           src={userImg}
-          alt={`${session?.user.name || ""} photo`}
+          alt={`${user.username || ""} photo`}
           className="h-10 w-10 rounded-full object-cover"
         />
       );
@@ -40,9 +44,10 @@ export default function UserPopover() {
       />
     );
   };
+
   return (
     <Popover className="relative">
-      {({ open }) => (
+      {({ open, close }) => (
         <>
           <Popover.Button
             className={`
@@ -65,7 +70,15 @@ export default function UserPopover() {
                 My interviews
               </Link>
               <button className=" p-4 text-left">My profile</button>
-              <button className=" p-4 text-left">Log out</button>
+              <button
+                className=" p-4 text-left"
+                onClick={() => {
+                  void signOut();
+                  close();
+                }}
+              >
+                Log out
+              </button>
             </Popover.Panel>
           </Transition>
         </>
