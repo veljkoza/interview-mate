@@ -100,7 +100,7 @@ export const interviewRouter = createTRPCRouter({
               data: [],
             },
           },
-          User: { connect: { id: ctx.session?.user.id } },
+          User: { connect: { id: ctx.currentUser?.id } },
           status: "ACTIVE",
           phase: "INTRODUCTION",
         },
@@ -288,7 +288,7 @@ export const interviewRouter = createTRPCRouter({
   getInterviewsForUser: publicProcedure.query(async ({ ctx }) => {
     const interviews = await ctx.prisma.interview.findMany({
       where: {
-        userId: ctx.session?.user.id,
+        userId: ctx.currentUser?.id,
       },
       select: interviewDTO,
     });
