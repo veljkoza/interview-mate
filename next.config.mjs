@@ -25,6 +25,11 @@ const config = {
         hostname: "avatars.githubusercontent.com",
         port: "",
       },
+      {
+        protocol: "https",
+        hostname: "images.clerk.dev",
+        port: "",
+      },
     ],
   },
 };
