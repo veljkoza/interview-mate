@@ -114,8 +114,7 @@ model Interview {
     status              InterviewStatus
     configuration       InterviewConfiguration @relation(fields: [configurationId], references: [id])
     configurationId     String
-    User                User?                  @relation(fields: [userId], references: [id])
-    userId              String?
+    userId              String
     phase               InterviewPhase
 }
 
@@ -135,7 +134,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    interviews    Interview[]
+    // interviews    Interview[]
 }
 
 model VerificationToken {

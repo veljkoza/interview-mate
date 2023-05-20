@@ -1,10 +1,16 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { TRPCContextType, createTRPCRouter, publicProcedure } from "../trpc";
+import {
+  TRPCContextType,
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "../trpc";
 import { prisma } from "~/server/db";
 import { interviewDTO } from "../DTOs/interviewDTO";
 import { messageDTO } from "../DTOs/messageDTO";
 import { Message, SENDER } from "@prisma/client";
+import { clerkClient } from "@clerk/nextjs";
 
 const GREETING_RESPONSE = `
 Greetings, Veljko! I'm James, and I'll be conducting your interview today for the open Front-End position at OrionTech Solutions. At OrionTech, we are a dynamic and innovative software development company known for our cutting-edge solutions in the technology industry. Our team is driven by a passion for creating user-friendly and visually appealing web applications that provide exceptional user experiences.
@@ -57,7 +63,7 @@ export const interviewRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.prisma.industry.findMany();
   }),
-  create: publicProcedure
+  create: privateProcedure
     .input(
       z.object({
         industry: IndustrySchema,
@@ -88,6 +94,7 @@ export const interviewRouter = createTRPCRouter({
           message:
             "Something went wrong while creating interview configuration",
         });
+
       const interview = await ctx.prisma.interview.create({
         data: {
           configuration: {
@@ -100,7 +107,7 @@ export const interviewRouter = createTRPCRouter({
               data: [],
             },
           },
-          User: { connect: { id: ctx.currentUser?.id } },
+          userId: ctx.currentUserId,
           status: "ACTIVE",
           phase: "INTRODUCTION",
         },
@@ -285,10 +292,17 @@ export const interviewRouter = createTRPCRouter({
 
       return [usersMessage, ...interviewerMessages];
     }),
-  getInterviewsForUser: publicProcedure.query(async ({ ctx }) => {
+  getInterviewsForUser: privateProcedure.query(async ({ ctx }) => {
+    if (!ctx.currentUserId) {
+      throw new Error("No user is currently logged in");
+      // or you can return an empty array if that's more suitable in your case
+      // return [];
+    }
+    const user = await clerkClient.users.getUser(ctx.currentUserId);
+
     const interviews = await ctx.prisma.interview.findMany({
       where: {
-        userId: ctx.currentUser?.id,
+        userId: user.id,
       },
       select: interviewDTO,
     });

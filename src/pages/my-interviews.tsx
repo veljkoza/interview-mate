@@ -14,7 +14,6 @@ const MyInterviews: NextPage = () => {
   const { data: interviews } = api.interview.getInterviewsForUser.useQuery();
   const getStatusColor = (status: InterviewStatus) =>
     interviewStatusColorMap[status];
-
   const getSatisfactionClassNames = (satisfaction: number) => {
     const getColor = () => {
       if (satisfaction < 33) return "bg-red-500";
