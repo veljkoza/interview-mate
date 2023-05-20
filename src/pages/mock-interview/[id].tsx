@@ -156,7 +156,7 @@ export const getStaticProps: GetStaticProps<{ id: string }> = async (
 ) => {
   const ssg = createProxySSGHelpers({
     router: appRouter,
-    ctx: { prisma, currentUser: null },
+    ctx: { prisma, currentUserId: null },
     transformer: SuperJSON,
   });
 
