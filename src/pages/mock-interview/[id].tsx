@@ -97,7 +97,7 @@ type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
   const {
     interview,
-    isSendingMessageLoading,
+    isLoading,
     handleSubmit,
     messageText,
     setMessageText,
@@ -125,7 +125,7 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
               message={message.content}
             />
           ))}
-          {isSendingMessageLoading && <Message isGhost sender="USER" />}
+          {isLoading && <Message isGhost sender="INTERVIEWER" />}
         </div>
         <form
           onSubmit={(e) => {

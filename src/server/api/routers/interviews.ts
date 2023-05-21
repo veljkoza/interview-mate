@@ -11,12 +11,14 @@ import { interviewDTO } from "../DTOs/interviewDTO";
 import { messageDTO } from "../DTOs/messageDTO";
 import { Message, SENDER } from "@prisma/client";
 import { clerkClient } from "@clerk/nextjs";
+import { InterviewRepository } from "../repository";
 
 const GREETING_RESPONSE = `
 Greetings, Veljko! I'm James, and I'll be conducting your interview today for the open Front-End position at OrionTech Solutions. At OrionTech, we are a dynamic and innovative software development company known for our cutting-edge solutions in the technology industry. Our team is driven by a passion for creating user-friendly and visually appealing web applications that provide exceptional user experiences.
 
 As a Front-End Developer at OrionTech, you will play a crucial role in designing and implementing the user interface components of our projects. You will collaborate closely with our talented team of developers, designers, and project managers to translate design concepts into functional and responsive web applications. We value creativity, attention to detail, and a strong commitment to delivering high-quality solutions. We're excited to learn more about your skills and experiences to see how you can contribute to our team's success.`;
-
+const TELL_US_SOMETHING_ABOUT_YOURSELF =
+  "Can you please tell us something more about your experience?";
 const openAIResponse = {
   response: "That's a great answer!",
   nextQuestion: "What is Javascript?",
@@ -31,33 +33,6 @@ const TopicSchema = z.object({
   id: z.string(),
   name: z.string(),
 });
-
-const createMessageForInterview = async (
-  ctx: TRPCContextType,
-  data: Pick<Message, "interviewId" | "content" | "sender" | "isQuestion">
-) => {
-  const interview = await ctx.prisma.interview.findUnique({
-    where: { id: data.interviewId },
-    include: { messages: true }, // Include the existing messages related to the interview
-  });
-  if (!interview)
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Interview with that ID hasn't been found",
-    });
-
-  const newMessage = await ctx.prisma.message.create({
-    data: {
-      content: data.content,
-      sender: data.sender,
-      isQuestion: data.isQuestion,
-      interview: { connect: { id: interview.id } }, // Associate the message with the interview
-    },
-    select: messageDTO,
-  });
-
-  return newMessage;
-};
 
 export const interviewRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => {
@@ -119,18 +94,9 @@ export const interviewRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const interview = await ctx.prisma.interview.findFirst({
-        where: {
-          id: input.id,
-        },
-        select: interviewDTO,
+      const interview = await InterviewRepository.getInterviewOrThrow(ctx, {
+        id: input.id,
       });
-      if (!interview) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "There's no interview with that id",
-        });
-      }
 
       return interview;
     }),
@@ -143,12 +109,15 @@ export const interviewRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const newMessage = await createMessageForInterview(ctx, {
-        content: input.content,
-        interviewId: input.id,
-        sender: input.sender,
-        isQuestion: false,
-      });
+      const newMessage = await InterviewRepository.createMessageForInterview(
+        ctx,
+        {
+          content: input.content,
+          interviewId: input.id,
+          sender: input.sender,
+          isQuestion: false,
+        }
+      );
 
       return newMessage;
     }),
@@ -156,12 +125,15 @@ export const interviewRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const content = GREETING_RESPONSE;
-      const newMessage = await createMessageForInterview(ctx, {
-        content,
-        sender: "INTERVIEWER",
-        isQuestion: false,
-        interviewId: input.id,
-      });
+      const newMessage = await InterviewRepository.createMessageForInterview(
+        ctx,
+        {
+          content,
+          sender: "INTERVIEWER",
+          isQuestion: false,
+          interviewId: input.id,
+        }
+      );
 
       return newMessage;
     }),
@@ -170,12 +142,15 @@ export const interviewRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const content = "Can you please introduce yourself?";
 
-      const newMessage = await createMessageForInterview(ctx, {
-        content,
-        sender: "INTERVIEWER",
-        isQuestion: true,
-        interviewId: input.id,
-      });
+      const newMessage = await InterviewRepository.createMessageForInterview(
+        ctx,
+        {
+          content,
+          sender: "INTERVIEWER",
+          isQuestion: true,
+          interviewId: input.id,
+        }
+      );
 
       return newMessage;
     }),
@@ -191,6 +166,7 @@ export const interviewRouter = createTRPCRouter({
           code: "NOT_FOUND",
           message: "Interview with that ID hasn't been found",
         });
+
       const openAIresponse = "Let's start with the technical interview now!";
       const newMessage = await ctx.prisma.message.create({
         data: {
@@ -234,31 +210,12 @@ export const interviewRouter = createTRPCRouter({
       z.object({ id: z.string(), question: z.string(), answer: z.string() })
     )
     .mutation(async ({ ctx, input }) => {
-      /**
-       * 1. create user's message
-       * 2. get feedback and question from openai
-       * 3. create message metadata from response from openai and input
-       * 4. append messagedata to user's message
-       * ---------------------------
-       * 1. create interviewer's message from `response` field of openAi response
-       * 2. create interviewer's message from `nextQuestion` field of openAi response
-       * ---------
-       * return allMessages
-       */
-
-      // const usersAnswerMessage = await createMessageForInterview(ctx, {content})
-      const interview = await ctx.prisma.interview.findUnique({
-        where: { id: input.id },
-        include: { messages: true }, // Include the existing messages related to the interview
+      const interview = await InterviewRepository.getInterviewOrThrow(ctx, {
+        id: input.id,
       });
-      if (!interview)
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Interview with that ID hasn't been found",
-        });
 
+      // 1.
       // get feedback and next question from openAi
-      const contents = [openAIResponse.response, openAIResponse.nextQuestion];
       const dummyMessageMeta = await ctx.prisma.messageMetadata.create({
         data: {
           feedback:
@@ -267,6 +224,9 @@ export const interviewRouter = createTRPCRouter({
           question: input.question,
         },
       });
+
+      // 2.
+      //create message for user and append metadata
       const usersMessage = await ctx.prisma.message.create({
         data: {
           content: input.answer,
@@ -276,6 +236,28 @@ export const interviewRouter = createTRPCRouter({
         },
         select: messageDTO,
       });
+
+      const { messages } = interview;
+      const messagesLength = messages.length + 1;
+
+      //3.
+      // Get next messages
+      const getTechnicalAnnouncementContent = () => [
+        "Let's move on to the technical part",
+        "Can you tell us the difference between JS and TS?",
+      ];
+      const getNextTechnicalQuestion = () => [
+        "Thanks for the answer",
+        "What is React?",
+      ];
+
+      const getContent = () => {
+        if (messagesLength === 3) return getTechnicalAnnouncementContent();
+        if (messages.length > 3) return getNextTechnicalQuestion();
+        return getNextTechnicalQuestion();
+      };
+      const contents = getContent();
+
       const createMessages = contents.map((content, i) =>
         ctx.prisma.message.create({
           data: {
@@ -290,7 +272,7 @@ export const interviewRouter = createTRPCRouter({
 
       const interviewerMessages = await ctx.prisma.$transaction(createMessages);
 
-      return [usersMessage, ...interviewerMessages];
+      return [...interviewerMessages];
     }),
   getInterviewsForUser: privateProcedure.query(async ({ ctx }) => {
     if (!ctx.currentUserId) {
@@ -309,4 +291,62 @@ export const interviewRouter = createTRPCRouter({
 
     return interviews;
   }),
+  getMessages: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const interview = await ctx.prisma.interview.findFirst({
+        where: {
+          id: input.id,
+        },
+        include: {
+          messages: true,
+        },
+      });
+      if (!interview)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          cause: "Interview not found",
+          message: "Interview not found",
+        });
+      const { messages } = interview;
+
+      // if last message was by interviewer do nothing
+      const lastMessageSentByInterviewer = messages.at(-1)?.sender === "INTERVIEWER";
+
+      const getIntroductionContent = () => [
+        GREETING_RESPONSE,
+        TELL_US_SOMETHING_ABOUT_YOURSELF,
+      ];
+      const getTechnicalAnnouncementContent = () => [
+        "Let's move on to the technical part",
+        "Can you tell us the difference between JS and TS?",
+      ];
+      const getNextTechnicalQuestion = () => [
+        "Thanks for the answer",
+        "What is React?",
+      ];
+
+      const getContent = () => {
+        if (messages.length === 0) return getIntroductionContent();
+        if (lastMessageSentByInterviewer) return [];
+        if (messages.length === 3) return getTechnicalAnnouncementContent();
+        if (messages.length > 3) return getNextTechnicalQuestion();
+        return getNextTechnicalQuestion();
+      };
+      const contents = getContent();
+
+      const newMessages = contents.map((content, i) =>
+        ctx.prisma.message.create({
+          data: {
+            content: content,
+            sender: "INTERVIEWER",
+            isQuestion: i === content.length - 1,
+            interview: { connect: { id: input.id } }, // Associate the message with the interview
+          },
+          select: messageDTO,
+        })
+      );
+      const interviewerMessages = await ctx.prisma.$transaction(newMessages);
+      return [...interviewerMessages];
+    }),
 });
