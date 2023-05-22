@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { messageDTO } from "../DTOs/messageDTO";
 import { TRPCContextType } from "../trpc";
-import { Message } from "@prisma/client";
+import { Interview, Message } from "@prisma/client";
 
 export const createMessageForInterview = async (
   ctx: TRPCContextType,
@@ -36,7 +36,7 @@ export const getInterviewOrThrow = async (
 ) => {
   const interview = await ctx.prisma.interview.findUnique({
     where: { id: data.id },
-    include: { messages: true }, // Include the existing messages related to the interview
+    include: { messages: true, configuration: true }, // Include the existing messages related to the interview
   });
   if (!interview)
     throw new TRPCError({
@@ -45,4 +45,28 @@ export const getInterviewOrThrow = async (
     });
 
   return interview;
+};
+
+export const updateInterviewById = async (
+  ctx: TRPCContextType,
+  data: Partial<Interview>
+) => {
+  const interview = await ctx.prisma.interview.findUnique({
+    where: { id: data.id },
+    include: { messages: true, configuration: true }, // Include the existing messages related to the interview
+  });
+
+  if (!interview)
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      message: "Interview with that ID hasn't been found",
+    });
+
+  const newInterview = await ctx.prisma.interview.update({
+    where: { id: data.id },
+    data,
+    include: { messages: true, configuration: true },
+  });
+
+  return newInterview;
 };

@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { type RouterOutputs, api } from "~/utils/api";
-type TMessageDTO = RouterOutputs["interview"]["sendMessage"];
+type TMessageDTO = RouterOutputs["interview"]["getMessages"][0];
 const scrollToBottom = <T extends HTMLDivElement>(el: T) => {
   el.scrollTop = el.scrollHeight;
 };
 
 export const useInterview = ({ id }: { id: string }) => {
   const [messageText, setMessageText] = useState("");
+  const [isEnd, setIsEnd] = useState(false);
   const { interview: interviewTrpc } = api.useContext();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesContainer = messagesContainerRef.current;
@@ -27,7 +28,8 @@ export const useInterview = ({ id }: { id: string }) => {
   const { mutate: answerQuestion, isLoading } =
     api.interview.answerQuestion.useMutation({
       onSuccess: (res) => {
-        res.map(addMessageToState);
+        res.messages.map(addMessageToState);
+        setIsEnd(res.isEnd);
       },
     });
   const { messages } = interview || {};
@@ -84,6 +86,7 @@ export const useInterview = ({ id }: { id: string }) => {
   }, [interview?.messages.length]);
 
   return {
+    isEnd,
     interview,
     messagesContainerRef,
     messages,

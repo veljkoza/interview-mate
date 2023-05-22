@@ -13,6 +13,7 @@ import SuperJSON from "superjson";
 import { RouterOutputs, api } from "~/utils/api";
 import type { SENDER } from "@prisma/client";
 import { useInterview } from "~/domain/mock-interview/hooks/useInterview";
+import { Button } from "~/components/buttons";
 
 const BUBBLE_VARIANTS: Record<SENDER, string> = {
   INTERVIEWER:
@@ -96,6 +97,7 @@ type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
 const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
   const {
+    isEnd,
     interview,
     isLoading,
     handleSubmit,
@@ -104,7 +106,35 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
     messagesContainerRef,
   } = useInterview({ id });
 
+  const isInterviewOver = isEnd || interview?.status === "COMPLETED";
   if (!interview) return <div>404</div>;
+
+  const getForm = () => {
+    if (isInterviewOver) {
+      return <Button>See your results</Button>;
+    }
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+        className="mt-auto flex w-full"
+      >
+        <Panel className="h-16 w-full p-0">
+          <input
+            onChange={(e) => setMessageText(e.target.value)}
+            value={messageText}
+            className="h-full w-full bg-canvas-subtle px-5 py-2 text-muted-fg outline-none"
+            placeholder="Type your message..."
+          />
+        </Panel>
+        <button className="flex h-16 w-16 items-center justify-center rounded-br-md rounded-tr-md border-2   border-accent-secondary text-accent-secondary">
+          <BsSend className="text-xl" />
+        </button>
+      </form>
+    );
+  };
 
   return (
     <div className="relative flex h-screen flex-col pt-24">
@@ -127,25 +157,7 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
           ))}
           {isLoading && <Message isGhost sender="INTERVIEWER" />}
         </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit();
-          }}
-          className="mt-auto flex w-full gap-5"
-        >
-          <Panel className="h-16 w-full p-0">
-            <input
-              onChange={(e) => setMessageText(e.target.value)}
-              value={messageText}
-              className="h-full w-full bg-canvas-subtle px-5 py-2 text-muted-fg outline-none"
-              placeholder="Type your message..."
-            />
-          </Panel>
-          <button className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-accent-secondary text-accent-secondary">
-            <BsSend className="text-xl" />
-          </button>
-        </form>
+        {getForm()}
       </Container>
     </div>
   );
