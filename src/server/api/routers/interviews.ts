@@ -261,4 +261,24 @@ export const interviewRouter = createTRPCRouter({
       const interviewerMessages = await ctx.prisma.$transaction(newMessages);
       return [...interviewerMessages];
     }),
+  getInterviewResultsById: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const interview = await InterviewRepository.getInterviewOrThrow(ctx, {
+        id: input.id,
+      });
+
+      const result = interview.messages.map((message) => {
+        const { metadata } = message;
+        if (metadata) {
+          return {
+            ...metadata,
+            answer: message.content,
+          };
+        }
+      });
+      const filtered = result.filter(Boolean);
+
+      return filtered;
+    }),
 });

@@ -1,7 +1,6 @@
 import type { GetStaticProps, InferGetStaticPropsType, NextPage } from "next";
 import { Container } from "~/components/containers";
-import logoSrc from "assets/logo2.png";
-import Image from "next/image";
+
 import { type PropsWithChildren } from "react";
 import { Panel } from "~/components/panel";
 import { RiMenu4Fill } from "react-icons/ri";
@@ -14,83 +13,8 @@ import { RouterOutputs, api } from "~/utils/api";
 import type { SENDER } from "@prisma/client";
 import { useInterview } from "~/domain/mock-interview/hooks/useInterview";
 import { Button } from "~/components/buttons";
-
-const BUBBLE_VARIANTS: Record<SENDER, string> = {
-  INTERVIEWER:
-    " text-accent-secondary border border-accent-secondary opacity-60",
-  USER: "bg-canvas-subtle text-muted-fg border border-muted-fg",
-};
-
-const ChatBubble = ({
-  sender,
-  message = "",
-  isTyping = false,
-}: {
-  sender: SENDER;
-  message?: string;
-  isTyping?: boolean;
-}) => {
-  const classNames = `rounded-lg ${BUBBLE_VARIANTS[sender]} w-auto  p-3`;
-
-  if (isTyping)
-    return (
-      <div className={`${classNames} animate-bounce`}>
-        <p>...</p>
-      </div>
-    );
-  return (
-    <div className={classNames}>
-      <p>{message}</p>
-    </div>
-  );
-};
-
-const ChatMessageContainer = ({
-  children,
-  sender,
-}: PropsWithChildren & { sender: SENDER }) => (
-  <div
-    className={`flex items-start gap-4 ${
-      sender === "INTERVIEWER" ? "justify-start" : "justify-end"
-    }`}
-  >
-    {children}
-  </div>
-);
-
-const Message = ({
-  sender,
-  message,
-  isGhost,
-}: {
-  sender: SENDER;
-  message?: string;
-  isGhost?: boolean;
-}) => {
-  return (
-    <ChatMessageContainer sender={sender}>
-      {sender === "INTERVIEWER" && (
-        <Image
-          src={logoSrc}
-          alt="Interview mate portrait photo"
-          className="block h-14 w-14 object-contain"
-          height={56}
-          width={56}
-        />
-      )}
-      <ChatBubble sender={sender} message={message} isTyping={isGhost} />
-      {sender === "USER" && (
-        <Image
-          src={logoSrc}
-          alt="User's portrait photo"
-          className="block h-14 w-14 object-contain"
-          height={56}
-          width={56}
-        />
-      )}
-    </ChatMessageContainer>
-  );
-};
+import { Message } from "~/domain/mock-interview/components/chat";
+import { useClerk } from "@clerk/nextjs";
 
 export type TInterviewDTO = RouterOutputs["interview"]["create"];
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
@@ -107,6 +31,11 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
   } = useInterview({ id });
 
   const isInterviewOver = isEnd || interview?.status === "COMPLETED";
+  const { user } = useClerk();
+  const getAvatar = (sender: SENDER) => {
+    if (sender === "INTERVIEWER") return "";
+    return user?.profileImageUrl;
+  };
   if (!interview) return <div>404</div>;
 
   const getForm = () => {
@@ -153,6 +82,7 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
               key={message.id}
               sender={message.sender}
               message={message.content}
+              avatar={getAvatar(message.sender)}
             />
           ))}
           {isLoading && <Message isGhost sender="INTERVIEWER" />}

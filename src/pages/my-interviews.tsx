@@ -65,6 +65,10 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
   const handleClick = () => {
     if (interview.status === "ACTIVE") {
       router.replace(`${ROUTES["mock-interview"]}/${interview.id}`);
+      return;
+    }
+    if (interview.status === "COMPLETED") {
+      router.replace(`${ROUTES["interview-results"]}/${interview.id}`);
     }
   };
   return (
@@ -81,9 +85,7 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
             interview.overallSatisfaction || 0
           )}`}
         ></div>
-        <div className="mb-4 mt-2 flex h-16 w-16 items-center justify-center rounded-full border-2 border-accent-secondary">
-          <p className="text-accent-secondary">69%</p>
-        </div>
+        <SatisfactionPercentage percentage={69} />
         <div className="flex items-center justify-between">
           <h2 className="text-2xl text-accent-secondary">
             Front-end position at Proxify.io
@@ -129,6 +131,33 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
           </div>
         )}
       </Panel>
+    </div>
+  );
+};
+
+export const SatisfactionPercentage = ({
+  percentage = 69,
+  className = "",
+}: {
+  percentage: number;
+} & { className?: string }) => {
+  const getSatisfactionClassNames = (satisfaction: number) => {
+    const getColor = () => {
+      if (satisfaction < 33) return "border-red-500 text-red-500";
+      if (satisfaction < 66) return "border-yellow-700 text-yellow-700";
+      return "text-green-500 border-green-500";
+    };
+    const color = getColor();
+    return `${color} `;
+  };
+  return (
+    <div
+      title={`You got ${percentage}% satisfaction result from interview mate`}
+      className={`mb-4 mt-2 flex h-16 w-16 items-center justify-center rounded-full border-2 ${getSatisfactionClassNames(
+        percentage
+      )} ${className}`}
+    >
+      <p className="">{percentage} %</p>
     </div>
   );
 };
