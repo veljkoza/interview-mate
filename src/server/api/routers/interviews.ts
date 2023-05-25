@@ -13,10 +13,6 @@ Greetings, Veljko! I'm James, and I'll be conducting your interview today for th
 As a Front-End Developer at OrionTech, you will play a crucial role in designing and implementing the user interface components of our projects. You will collaborate closely with our talented team of developers, designers, and project managers to translate design concepts into functional and responsive web applications. We value creativity, attention to detail, and a strong commitment to delivering high-quality solutions. We're excited to learn more about your skills and experiences to see how you can contribute to our team's success.`;
 const TELL_US_SOMETHING_ABOUT_YOURSELF =
   "Can you please tell us something more about your experience?";
-const openAIResponse = {
-  response: "That's a great answer!",
-  nextQuestion: "What is Javascript?",
-};
 
 const IndustrySchema = z.object({
   id: z.string(),
@@ -106,6 +102,13 @@ export const interviewRouter = createTRPCRouter({
 
       // 1.
       // get feedback and next question from openAi
+      const openAiRes = {
+        nextQuestion: "next question",
+        satisfaction: 90,
+        feedback: "sadasd",
+      };
+
+      // create messageMetadata
       const dummyMessageMeta = await ctx.prisma.messageMetadata.create({
         data: {
           feedback:
@@ -130,7 +133,6 @@ export const interviewRouter = createTRPCRouter({
       const { messages } = interview;
       const messagesLength = messages.length + 1;
 
-      console.log({ messages });
       const numberOfQuestions = messages.filter(
         (msg) => msg.isQuestion === true
       ).length;

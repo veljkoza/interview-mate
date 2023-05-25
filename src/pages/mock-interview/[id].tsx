@@ -15,6 +15,8 @@ import { useInterview } from "~/domain/mock-interview/hooks/useInterview";
 import { Button } from "~/components/buttons";
 import { Message } from "~/domain/mock-interview/components/chat";
 import { useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "~/consts/navigation";
 
 export type TInterviewDTO = RouterOutputs["interview"]["create"];
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
@@ -29,6 +31,7 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
     setMessageText,
     messagesContainerRef,
   } = useInterview({ id });
+  const router = useRouter();
 
   const isInterviewOver = isEnd || interview?.status === "COMPLETED";
   const { user } = useClerk();
@@ -40,7 +43,15 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
 
   const getForm = () => {
     if (isInterviewOver) {
-      return <Button>See your results</Button>;
+      return (
+        <Button
+          onClick={() =>
+            router.replace(`${ROUTES["interview-results"]}/${interview.id}`)
+          }
+        >
+          See your results
+        </Button>
+      );
     }
     return (
       <form

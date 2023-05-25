@@ -11,12 +11,6 @@ import { Circle } from "../interview-creator";
 import { RouterOutputs, api } from "~/utils/api";
 import { useEffect, useState } from "react";
 
-const DUMMY_MESSAGE = `"Controlled components in React are form elements whose value and state are controlled by React itself. The value is stored in the component's state, and any changes are managed through event handlers like onChange. React updates the component's value and triggers re-rendering.
-
-Uncontrolled components, on the other hand, have their value managed by the browser rather than React. The value is accessed using a ref and changes are handled through standard DOM events like onBlur or onChange. React doesn't have direct control over the component's state.
-
-Controlled components offer more control and flexibility, making it easier to implement features like validation and conditional rendering. Uncontrolled components are simpler and useful in cases where you don't need extensive state management or when working with third-party libraries or legacy code."`;
-
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 type InterviewResultDTO =
   RouterOutputs["interview"]["getInterviewResultsById"]["0"];
