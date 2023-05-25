@@ -3,6 +3,7 @@ import { exampleRouter } from "~/server/api/routers/example";
 import { topicRouter } from "./routers/topics";
 import { industryRouter } from "./routers/industries";
 import { interviewRouter } from "./routers/interviews";
+import { interviewResultRouter } from "./interview-result/interview-result.router";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   topic: topicRouter,
   industries: industryRouter,
   interview: interviewRouter,
+  interviewResult: interviewResultRouter,
 });
 
 // export type definition of API

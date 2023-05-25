@@ -80,9 +80,9 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
       >
         <div
           title="Satisfaction score"
-          style={{ width: `${interview.overallSatisfaction || 0}%` }}
+          style={{ width: `${0}%` }}
           className={`absolute left-0 right-0 top-0 h-1 ${getSatisfactionClassNames(
-            interview.overallSatisfaction || 0
+            0
           )}`}
         ></div>
         <SatisfactionPercentage percentage={69} />

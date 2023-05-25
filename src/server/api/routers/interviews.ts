@@ -6,6 +6,7 @@ import { messageDTO } from "../DTOs/messageDTO";
 import { clerkClient } from "@clerk/nextjs";
 import { InterviewRepository } from "../repository";
 import { Message } from "@prisma/client";
+import { InterviewResultRepository } from "../interview-result/interview-result.repository";
 
 const GREETING_RESPONSE = `
 Greetings, Veljko! I'm James, and I'll be conducting your interview today for the open Front-End position at OrionTech Solutions. At OrionTech, we are a dynamic and innovative software development company known for our cutting-edge solutions in the technology industry. Our team is driven by a passion for creating user-friendly and visually appealing web applications that provide exceptional user experiences.
@@ -74,9 +75,13 @@ export const interviewRouter = createTRPCRouter({
           },
           userId: ctx.currentUserId,
           status: "ACTIVE",
-          phase: "INTRODUCTION",
         },
         select: interviewDTO,
+      });
+
+      // create empty interviewResult
+      await InterviewResultRepository.createInterviewResult({
+        interviewId: interview.id,
       });
 
       return interview;
@@ -106,6 +111,7 @@ export const interviewRouter = createTRPCRouter({
         nextQuestion: "next question",
         satisfaction: 90,
         feedback: "sadasd",
+        topics: ["HTML"],
       };
 
       // create messageMetadata
@@ -115,6 +121,23 @@ export const interviewRouter = createTRPCRouter({
             "Good answer! I would suggest providing specific answer next time!",
           satisfaction: 90,
           question: input.question,
+        },
+      });
+
+      const matchingTopics = interview.configuration.topics.filter((topic) =>
+        openAiRes.topics.includes(topic.name)
+      );
+      // create interview result unit
+      const interviewResultUnit = await ctx.prisma.interviewResultUnit.create({
+        data: {
+          answer: input.answer,
+          question: input.question,
+          feedback: openAiRes.feedback,
+          satisfaction: openAiRes.satisfaction,
+          interviewResultId: interview.interviewResultId,
+          relevantTopics: {
+            connect: matchingTopics.map(({ id }) => ({ id })),
+          },
         },
       });
 

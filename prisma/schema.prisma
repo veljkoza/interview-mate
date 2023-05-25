@@ -95,6 +95,8 @@ model Topic {
     InterviewConfiguration InterviewConfiguration[]
     Industry               Industry?                @relation(fields: [industryId], references: [id])
     industryId             String?
+    InterviewResultUnit    InterviewResultUnit?     @relation(fields: [interviewResultUnitId], references: [id])
+    interviewResultUnitId  String?
 }
 
 model InterviewConfiguration {
@@ -108,14 +110,32 @@ model InterviewConfiguration {
 }
 
 model Interview {
-    id                  String                 @id @default(cuid())
-    messages            Message[]
+    id                String                 @id @default(cuid())
+    messages          Message[]
+    status            InterviewStatus
+    configuration     InterviewConfiguration @relation(fields: [configurationId], references: [id])
+    configurationId   String
+    userId            String
+    interviewResult   InterviewResult?      @relation(fields: [interviewResultId], references: [id])
+    interviewResultId String?                @unique
+}
+
+model InterviewResult {
+    id                  String                @id @default(cuid())
+    units               InterviewResultUnit[]
     overallSatisfaction Int?
-    status              InterviewStatus
-    configuration       InterviewConfiguration @relation(fields: [configurationId], references: [id])
-    configurationId     String
-    userId              String
-    phase               InterviewPhase
+    interview           Interview?
+}
+
+model InterviewResultUnit {
+    id                String           @id @default(cuid())
+    question          String
+    answer            String
+    relevantTopics    Topic[]
+    InterviewResult   InterviewResult? @relation(fields: [interviewResultId], references: [id])
+    interviewResultId String?
+    satisfaction      Int
+    feedback          String           @db.VarChar(255)
 }
 
 model Session {
@@ -134,7 +154,6 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
-    // interviews    Interview[]
 }
 
 model VerificationToken {
