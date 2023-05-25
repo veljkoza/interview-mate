@@ -3,6 +3,7 @@ export const ROUTES = {
   "interview-creator": "/interview-creator",
   "mock-interview": "/mock-interview",
   "my-interviews": "/my-interviews",
+  "interview-results": "/interview-results",
 } as const;
 
 export const NAVIGATION = [

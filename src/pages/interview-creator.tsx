@@ -11,12 +11,12 @@ const CIRCLE_VARIANTS = {
   default: "border-accent-secondary text-accent-secondary",
   disabled: "border-muted-default text-muted-default",
 };
-const CircleDigit = ({
-  number,
+export const Circle = ({
+  value,
   onClick,
   variant = "default",
 }: {
-  number: number;
+  value: string;
   onClick?: () => void;
   variant?: "default" | "disabled";
 }) => {
@@ -24,13 +24,13 @@ const CircleDigit = ({
   if (onClick) {
     return (
       <button className={classNames} onClick={onClick}>
-        <p className="text-2xl">{number}</p>
+        <p className="text-2xl">{value}</p>
       </button>
     );
   }
   return (
     <div className={classNames}>
-      <p className="text-2xl">{number}</p>
+      <p className="text-2xl">{value}</p>
     </div>
   );
 };
@@ -48,10 +48,10 @@ const MockInterviewBuilder: NextPage = () => {
       <>
         <Container className="flex gap-8">
           {STEPS.map((_, i) => (
-            <CircleDigit
+            <Circle
               key={i}
               onClick={() => setStep(i)}
-              number={i + 1}
+              value={`${i + 1}`}
               variant={i === step ? "default" : "disabled"}
             />
           ))}

@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { messageDTO } from "../DTOs/messageDTO";
 import { TRPCContextType } from "../trpc";
 import { Interview, Message } from "@prisma/client";
+import { interviewDTO } from "../DTOs/interviewDTO";
 
 export const createMessageForInterview = async (
   ctx: TRPCContextType,
@@ -36,7 +37,7 @@ export const getInterviewOrThrow = async (
 ) => {
   const interview = await ctx.prisma.interview.findUnique({
     where: { id: data.id },
-    include: { messages: true, configuration: true }, // Include the existing messages related to the interview
+    select: interviewDTO, // Include the existing messages related to the interview
   });
   if (!interview)
     throw new TRPCError({
