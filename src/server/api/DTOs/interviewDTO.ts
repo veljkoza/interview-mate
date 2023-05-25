@@ -13,9 +13,9 @@ export const interviewDTO = {
       yearsOfExperience: true,
     },
   },
+  interviewResultId: true,
   messages: {
     include: { metadata: true },
   },
   status: true,
-  overallSatisfaction: true,
 };

@@ -4,8 +4,6 @@ import { Message } from "~/domain/mock-interview/components/chat";
 import type { Message as MessageType, SENDER } from "@prisma/client";
 import { useClerk } from "@clerk/nextjs";
 import { SatisfactionPercentage } from "../my-interviews";
-import { BsLightbulb } from "react-icons/bs";
-import { RiLightbulbFlashLine } from "react-icons/ri";
 import { Heading } from "~/components/typography";
 import { Circle } from "../interview-creator";
 import { RouterOutputs, api } from "~/utils/api";
@@ -19,7 +17,7 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number>(0);
   const goToNextQuestion = () => {
     setSelectedQuestionIndex((prev) => {
-      if (interviewResult?.[prev + 1]) {
+      if (interviewResult?.units[prev + 1]) {
         return prev + 1;
       }
       return prev;
@@ -27,18 +25,17 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
   };
   const goToPrevQuestion = () => {
     setSelectedQuestionIndex((prev) => {
-      if (interviewResult?.[prev - 1]) {
+      if (interviewResult?.units[prev - 1]) {
         return prev - 1;
       }
       return prev;
     });
   };
-  const { data: interviewResult } =
-    api.interview.getInterviewResultsById.useQuery({
-      id,
-    });
+  const { data: interviewResult } = api.interviewResult.getById.useQuery({
+    id,
+  });
 
-  const selectedQuestion = interviewResult?.[selectedQuestionIndex];
+  const selectedQuestion = interviewResult?.units[selectedQuestionIndex];
 
   const getAvatar = (sender: SENDER) => {
     if (sender === "INTERVIEWER") return "";

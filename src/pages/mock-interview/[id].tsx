@@ -46,7 +46,9 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
       return (
         <Button
           onClick={() =>
-            router.replace(`${ROUTES["interview-results"]}/${interview.id}`)
+            router.replace(
+              `${ROUTES["interview-results"]}/${interview.interviewResultId}`
+            )
           }
         >
           See your results
