@@ -4,16 +4,9 @@ import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc";
 import { interviewDTO } from "../DTOs/interviewDTO";
 import { messageDTO } from "../DTOs/messageDTO";
 import { clerkClient } from "@clerk/nextjs";
-import { InterviewRepository } from "../repository";
-import { Message } from "@prisma/client";
 import { InterviewResultRepository } from "../interview-result/interview-result.repository";
-
-const GREETING_RESPONSE = `
-Greetings, Veljko! I'm James, and I'll be conducting your interview today for the open Front-End position at OrionTech Solutions. At OrionTech, we are a dynamic and innovative software development company known for our cutting-edge solutions in the technology industry. Our team is driven by a passion for creating user-friendly and visually appealing web applications that provide exceptional user experiences.
-
-As a Front-End Developer at OrionTech, you will play a crucial role in designing and implementing the user interface components of our projects. You will collaborate closely with our talented team of developers, designers, and project managers to translate design concepts into functional and responsive web applications. We value creativity, attention to detail, and a strong commitment to delivering high-quality solutions. We're excited to learn more about your skills and experiences to see how you can contribute to our team's success.`;
-const TELL_US_SOMETHING_ABOUT_YOURSELF =
-  "Can you please tell us something more about your experience?";
+import { InterviewRepository } from "./interview.repository";
+import { MockInterviewAiService } from "../services/openai/openai";
 
 const IndustrySchema = z.object({
   id: z.string(),
@@ -107,33 +100,35 @@ export const interviewRouter = createTRPCRouter({
 
       // 1.
       // get feedback and next question from openAi
-      const openAiRes = {
-        nextQuestion: "next question",
-        satisfaction: 90,
-        feedback: "sadasd",
-        topics: ["HTML"],
-      };
+      const aiResponse = await MockInterviewAiService.getNextQuestion({
+        answer: input.answer,
+        industry: interview.configuration.industry.name,
+        question: input.question,
+        topics: interview.configuration.topics.map((t) => t.name),
+        yearsOfExperience: interview.configuration.yearsOfExperience,
+      });
+
+      console.log({ aiResponse });
 
       // create messageMetadata
-      const dummyMessageMeta = await ctx.prisma.messageMetadata.create({
+      const messageMeta = await ctx.prisma.messageMetadata.create({
         data: {
-          feedback:
-            "Good answer! I would suggest providing specific answer next time!",
-          satisfaction: 90,
+          feedback: aiResponse.feedback,
+          satisfaction: +aiResponse.satisfaction,
           question: input.question,
         },
       });
 
       const matchingTopics = interview.configuration.topics.filter((topic) =>
-        openAiRes.topics.includes(topic.name)
+        aiResponse.topics.includes(topic.name)
       );
       // create interview result unit
       const interviewResultUnit = await ctx.prisma.interviewResultUnit.create({
         data: {
           answer: input.answer,
           question: input.question,
-          feedback: openAiRes.feedback,
-          satisfaction: openAiRes.satisfaction,
+          feedback: aiResponse.feedback,
+          satisfaction: +aiResponse.satisfaction,
           interviewResultId: interview.interviewResultId,
           relevantTopics: {
             connect: matchingTopics.map(({ id }) => ({ id })),
@@ -148,7 +143,7 @@ export const interviewRouter = createTRPCRouter({
           content: input.answer,
           sender: "USER",
           interview: { connect: { id: input.id } },
-          metadata: { connect: { id: dummyMessageMeta.id } },
+          metadata: { connect: { id: messageMeta.id } },
         },
         select: messageDTO,
       });
@@ -162,21 +157,12 @@ export const interviewRouter = createTRPCRouter({
 
       //3.
       // Get next messages
-      const getTechnicalAnnouncementContent = () => [
-        "Let's move on to the technical part",
-        "Can you tell us the difference between JS and TS?",
-      ];
-      const getNextTechnicalQuestion = () => [
-        "Thanks for the answer",
-        "What is React?",
-      ];
-
       const getEndingContent = () => [
         "That was a great interview.",
         "We are finished here!",
       ];
 
-      const isEnd = numberOfQuestions >= 4;
+      const isEnd = numberOfQuestions >= 7; //TODO: Replace this with timer
       if (isEnd) {
         await InterviewRepository.updateInterviewById(ctx, {
           id: input.id,
@@ -188,9 +174,8 @@ export const interviewRouter = createTRPCRouter({
         if (isEnd) {
           return getEndingContent();
         }
-        if (messagesLength === 3) return getTechnicalAnnouncementContent();
-        if (messages.length > 3) return getNextTechnicalQuestion();
-        return getNextTechnicalQuestion();
+
+        return [aiResponse.response, aiResponse.nextQuestion];
       };
       const contents = getContent();
 
@@ -236,6 +221,12 @@ export const interviewRouter = createTRPCRouter({
         },
         include: {
           messages: true,
+          configuration: {
+            include: {
+              industry: true,
+              topics: true,
+            },
+          },
         },
       });
       if (!interview)
@@ -250,27 +241,33 @@ export const interviewRouter = createTRPCRouter({
       const lastMessageSentByInterviewer =
         messages.at(-1)?.sender === "INTERVIEWER";
 
-      const getIntroductionContent = () => [
-        GREETING_RESPONSE,
-        TELL_US_SOMETHING_ABOUT_YOURSELF,
-      ];
-      const getTechnicalAnnouncementContent = () => [
-        "Let's move on to the technical part",
-        "Can you tell us the difference between JS and TS?",
-      ];
       const getNextTechnicalQuestion = () => [
         "Thanks for the answer",
         "What is React?",
       ];
+      const user = await clerkClient.users.getUser(ctx.currentUserId);
 
-      const getContent = () => {
-        if (messages.length === 0) return getIntroductionContent();
+      const getContent = async () => {
+        if (messages.length === 0) {
+          const res = await MockInterviewAiService.getIntroduction({
+            industry: interview.configuration.industry.name,
+            personName: user.firstName || user.username || "",
+          });
+          return [res.introduction, res.introductionQuestion];
+        }
         if (lastMessageSentByInterviewer) return [];
-        if (messages.length === 3) return getTechnicalAnnouncementContent();
+        // if (messages.length === 3) {
+        //   const res = await MockInterviewAiService.getTechnicalAnnouncement({
+        //     industry: interview.configuration.industry.name,
+        //     topics: interview.configuration.topics.map((t) => t.name),
+        //     yearsOfExperience: interview.configuration.yearsOfExperience,
+        //   });
+        //   return [res.announcement, res.question];
+        // }
         if (messages.length > 3) return getNextTechnicalQuestion();
         return getNextTechnicalQuestion();
       };
-      const contents = getContent();
+      const contents = await getContent();
 
       const newMessages = contents.map((content, i) =>
         ctx.prisma.message.create({

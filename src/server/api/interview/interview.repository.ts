@@ -71,3 +71,8 @@ export const updateInterviewById = async (
 
   return newInterview;
 };
+
+export const InterviewRepository = {
+  getInterviewOrThrow,
+  updateInterviewById,
+};

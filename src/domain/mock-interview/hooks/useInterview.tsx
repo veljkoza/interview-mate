@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { type RouterOutputs, api } from "~/utils/api";
 type TMessageDTO = RouterOutputs["interview"]["getMessages"][0];
 const scrollToBottom = <T extends HTMLDivElement>(el: T) => {
@@ -16,22 +16,28 @@ export const useInterview = ({ id }: { id: string }) => {
     { id },
     { onSuccess: () => setTimeout(() => scrollToBottomOfMessages(), 150) }
   );
-  api.interview.getMessages.useQuery(
-    { id },
+  const { isLoading: isGettingMessages } = api.interview.getMessages.useQuery(
     {
-      onSuccess: (res) => {
-        res.map(addMessageToState);
-      },
+      id,
+    },
+    {
+      onSuccess: (res) => res.map(addMessageToState),
     }
   );
 
-  const { mutate: answerQuestion, isLoading } =
+  const { mutate: answerQuestion, isLoading: isSendingMessage } =
     api.interview.answerQuestion.useMutation({
       onSuccess: (res) => {
         res.messages.map(addMessageToState);
         setIsEnd(res.isEnd);
       },
     });
+
+  const status = useMemo(() => {
+    if (isGettingMessages) return "GETTING_MESSAGES";
+    if (isSendingMessage) return "SENDING_MESSAGE";
+    return "LOADING";
+  }, [isSendingMessage, isGettingMessages]);
   const { messages } = interview || {};
 
   const addMessageToState = (message: TMessageDTO) => {
@@ -90,9 +96,11 @@ export const useInterview = ({ id }: { id: string }) => {
     interview,
     messagesContainerRef,
     messages,
-    isLoading,
+    status,
     handleSubmit,
     messageText,
     setMessageText,
+    isSendingMessage,
+    isGettingMessages,
   };
 };
