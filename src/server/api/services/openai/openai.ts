@@ -6,12 +6,13 @@ import {
   type GetTechnicalAnnouncementPromptParams,
   Prompts,
 } from "./prompts";
+import { env } from "~/env.mjs";
 const configuration = new Configuration({
   organization: "org-wGQSQOlnl30MtUnbW35FfICR",
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: env.OPENAI_API_KEY,
 });
 
-const model = "gpt-3.5-turbo";
+const model = env.CHAT_GPT_MODEL;
 export const openai = new OpenAIApi(configuration);
 
 export const createOpenAICompletion = async ({
