@@ -64,8 +64,8 @@ The perfect candidate for this role has expertise in ${industry} skills, and sho
   ", "
 )}, and has ${yearsOfExperience} years of professional experience.
 Use this information as a guide, but also include general questions relevant to the industry.
-Make sure you maintain a respectful and encouraging tone throughout the interview.
 The questions shouldn't all have to be technical.
+Make sure you maintain a respectful and encouraging tone throughout the interview.
 Ask him ${getSeniority(yearsOfExperience)} level questions.
 QUESTION:
 "${question}"

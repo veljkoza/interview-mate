@@ -161,8 +161,9 @@ export const interviewRouter = createTRPCRouter({
         "That was a great interview.",
         "We are finished here!",
       ];
-
-      const isEnd = numberOfQuestions >= 7; //TODO: Replace this with timer
+      // 10 minuta * 2 = 20 pitanja
+      const isEnd =
+        numberOfQuestions >= interview.configuration.durationInMinutes * 1.2; //TODO: Replace this with timer
       if (isEnd) {
         await InterviewRepository.updateInterviewById(ctx, {
           id: input.id,
