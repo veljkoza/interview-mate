@@ -53,7 +53,7 @@ enum SENDER {
 model MessageMetadata {
     id           String    @id @default(cuid())
     satisfaction Int
-    feedback     String
+    feedback     String    @db.Text
     Message      Message[]
     question     String?
 }
@@ -116,7 +116,7 @@ model Interview {
     configuration     InterviewConfiguration @relation(fields: [configurationId], references: [id])
     configurationId   String
     userId            String
-    interviewResult   InterviewResult?      @relation(fields: [interviewResultId], references: [id])
+    interviewResult   InterviewResult?       @relation(fields: [interviewResultId], references: [id])
     interviewResultId String?                @unique
 }
 
@@ -129,13 +129,13 @@ model InterviewResult {
 
 model InterviewResultUnit {
     id                String           @id @default(cuid())
-    question          String
-    answer            String
+    question          String           @db.Text
+    answer            String           @db.Text
     relevantTopics    Topic[]
     InterviewResult   InterviewResult? @relation(fields: [interviewResultId], references: [id])
     interviewResultId String?
     satisfaction      Int
-    feedback          String           @db.VarChar(255)
+    feedback          String           @db.Text
 }
 
 model Session {

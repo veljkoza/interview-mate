@@ -2,7 +2,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
 import { exampleRouter } from "~/server/api/routers/example";
 import { topicRouter } from "./routers/topics";
 import { industryRouter } from "./routers/industries";
-import { interviewRouter } from "./routers/interviews";
+import { interviewRouter } from "./interview/interviews.router";
 import { interviewResultRouter } from "./interview-result/interview-result.router";
 
 /**

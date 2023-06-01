@@ -25,9 +25,10 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
   const {
     isEnd,
     interview,
-    isLoading,
     handleSubmit,
     messageText,
+    isGettingMessages,
+    isSendingMessage,
     setMessageText,
     messagesContainerRef,
   } = useInterview({ id });
@@ -39,6 +40,9 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
     if (sender === "INTERVIEWER") return "";
     return user?.profileImageUrl;
   };
+
+  const shouldDisableForm = isSendingMessage || isGettingMessages;
+
   if (!interview) return <div>404</div>;
 
   const getForm = () => {
@@ -60,6 +64,7 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
     return (
       <form
         onSubmit={(e) => {
+          if (shouldDisableForm) return;
           e.preventDefault();
           handleSubmit();
         }}
@@ -73,7 +78,10 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
             placeholder="Type your message..."
           />
         </Panel>
-        <button className="flex h-16 w-16 items-center justify-center rounded-br-md rounded-tr-md border-2   border-accent-secondary text-accent-secondary">
+        <button
+          className="flex h-16 w-16 items-center justify-center rounded-br-md rounded-tr-md border-2   border-accent-secondary text-accent-secondary"
+          disabled={shouldDisableForm}
+        >
           <BsSend className="text-xl" />
         </button>
       </form>
@@ -100,7 +108,7 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
               avatar={getAvatar(message.sender)}
             />
           ))}
-          {isLoading && <Message isGhost sender="INTERVIEWER" />}
+          {shouldDisableForm && <Message isGhost sender="INTERVIEWER" />}
         </div>
         {getForm()}
       </Container>

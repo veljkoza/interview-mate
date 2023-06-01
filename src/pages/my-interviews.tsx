@@ -68,7 +68,9 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
       return;
     }
     if (interview.status === "COMPLETED") {
-      router.replace(`${ROUTES["interview-results"]}/${interview.id}`);
+      router.replace(
+        `${ROUTES["interview-results"]}/${interview.interviewResultId || ""}`
+      );
     }
   };
   return (
