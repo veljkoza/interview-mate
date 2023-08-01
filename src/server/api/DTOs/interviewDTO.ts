@@ -18,4 +18,5 @@ export const interviewDTO = {
     include: { metadata: true },
   },
   status: true,
+  questions: true,
 };

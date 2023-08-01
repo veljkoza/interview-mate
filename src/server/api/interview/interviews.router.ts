@@ -56,6 +56,7 @@ export const interviewRouter = createTRPCRouter({
 
       const interview = await ctx.prisma.interview.create({
         data: {
+          questions: [],
           configuration: {
             connect: {
               id: interviewConfiguration.id,
@@ -72,8 +73,21 @@ export const interviewRouter = createTRPCRouter({
         select: interviewDTO,
       });
 
+      //add questions to interview
+      const generatedQuestions = MockInterviewAiService.getQuestions({
+        numberOfQuestions: 10,
+      }).then(async (res) => {
+        console.log({ res }, "hazbula");
+        await ctx.prisma.interview.update({
+          where: { id: interview.id },
+          data: {
+            questions: res.questions,
+          },
+        });
+      });
+
       // create empty interviewResult
-      await InterviewResultRepository.createInterviewResult({
+      InterviewResultRepository.createInterviewResult({
         interviewId: interview.id,
       });
 
@@ -98,14 +112,13 @@ export const interviewRouter = createTRPCRouter({
         id: input.id,
       });
 
+      console.log({ interview });
+
       // 1.
       // get feedback and next question from openAi
-      const aiResponse = await MockInterviewAiService.getNextQuestion({
+      const aiResponse = await MockInterviewAiService.getFeedbackForAnswer({
         answer: input.answer,
-        industry: interview.configuration.industry.name,
         question: input.question,
-        topics: interview.configuration.topics.map((t) => t.name),
-        yearsOfExperience: interview.configuration.yearsOfExperience,
       });
 
       console.log({ aiResponse });
@@ -114,25 +127,27 @@ export const interviewRouter = createTRPCRouter({
       const messageMeta = await ctx.prisma.messageMetadata.create({
         data: {
           feedback: aiResponse.feedback,
-          satisfaction: +aiResponse.satisfaction,
+          satisfaction: +aiResponse.correctness,
           question: input.question,
         },
       });
 
-      const matchingTopics = interview.configuration.topics.filter((topic) =>
-        aiResponse.topics.includes(topic.name)
-      );
+      // const matchingTopics = interview.configuration.topics.filter((topic) =>
+      //   aiResponse.topics.includes(topic.name)
+      // );
       // create interview result unit
-      const interviewResultUnit = await ctx.prisma.interviewResultUnit.create({
+      void ctx.prisma.interviewResultUnit.create({
         data: {
           answer: input.answer,
           question: input.question,
           feedback: aiResponse.feedback,
-          satisfaction: +aiResponse.satisfaction,
+          satisfaction: +aiResponse.correctness,
           interviewResultId: interview.interviewResultId,
           relevantTopics: {
-            connect: matchingTopics.map(({ id }) => ({ id })),
+            connect: [].map(({ id }) => ({ id })),
           },
+          areasToImproveOn: aiResponse.areasToImproveOn,
+          suggestions: aiResponse.suggestions,
         },
       });
 
@@ -175,8 +190,10 @@ export const interviewRouter = createTRPCRouter({
         if (isEnd) {
           return getEndingContent();
         }
-
-        return [aiResponse.response, aiResponse.nextQuestion];
+        const questions = interview.questions as string[];
+        const currQuestionIndex = questions.indexOf(input.question);
+        const nextQuestion = questions[currQuestionIndex + 1];
+        return ["Thanks for the answer!", nextQuestion || ""];
       };
       const contents = getContent();
 

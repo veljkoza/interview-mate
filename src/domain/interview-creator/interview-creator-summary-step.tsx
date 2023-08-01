@@ -22,7 +22,6 @@ const SingleSummary = (
 
 export const InterviewCreatorSummaryStep = () => {
   const {
-    dispatchInterviewCreatorUpdate,
     interviewCreatorState: { interviewConfig },
   } = useInterviewCreator();
   const {

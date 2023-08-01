@@ -116,6 +116,7 @@ model Interview {
     configuration     InterviewConfiguration @relation(fields: [configurationId], references: [id])
     configurationId   String
     userId            String
+    questions         Json //string[]
     interviewResult   InterviewResult?       @relation(fields: [interviewResultId], references: [id])
     interviewResultId String?                @unique
 }
@@ -136,6 +137,8 @@ model InterviewResultUnit {
     interviewResultId String?
     satisfaction      Int
     feedback          String           @db.Text
+    areasToImproveOn  Json
+    suggestions       Json //{answerExcerpt: string, suggestion: string}[];
 }
 
 model Session {
