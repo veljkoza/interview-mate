@@ -27,7 +27,7 @@ export const InterviewCreatorSummaryStep = () => {
   const {
     industry: { name },
     topics,
-    durationInMinutes,
+    numberOfQuestions,
     yearsOfExperience,
   } = interviewConfig;
   const router = useRouter();
@@ -65,10 +65,9 @@ export const InterviewCreatorSummaryStep = () => {
             </Heading>
           </SingleSummary>
         </div>
-        <SingleSummary title="Interview duration">
+        <SingleSummary title="Number of questions">
           <Heading size={3} is="p" className="mt-3">
-            {durationInMinutes}
-            <span>m</span>
+            {numberOfQuestions}
           </Heading>
         </SingleSummary>
         <SingleSummary title="Topics">

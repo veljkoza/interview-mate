@@ -8,6 +8,7 @@ import {
 } from "./prompts/prompts";
 import { env } from "~/env.mjs";
 import { GetFeedbackForAnswerParams } from "./prompts/get-feedback-for-answer";
+import { GetFeedbackForAnswerV2Response } from "./prompts/get-feedback-for-answers.v2";
 const configuration = new Configuration({
   organization: "org-wGQSQOlnl30MtUnbW35FfICR",
   apiKey: env.OPENAI_API_KEY,
@@ -75,9 +76,22 @@ export const MockInterviewAiService: MockInterviewServiceType = {
       fallback: {},
     });
   },
+  getFeedbackForAnswerV2: async (params) => {
+    const helson: GetFeedbackForAnswerV2Response = await getOpenAiResponse({
+      prompt: Prompts.getFeedbackForAnswerV2(params),
+      fallback: {},
+    });
+    console.log({ helson });
+    return helson;
+  },
   getQuestions: async (params) =>
     await getOpenAiResponse({
       prompt: Prompts.getQuestions(params),
+      fallback: {},
+    }),
+  getQuestionsV2: async (params) =>
+    await getOpenAiResponse({
+      prompt: Prompts.getQuestionsV2(params),
       fallback: {},
     }),
 };

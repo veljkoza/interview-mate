@@ -51,11 +51,16 @@ enum SENDER {
 }
 
 model MessageMetadata {
-    id           String    @id @default(cuid())
-    satisfaction Int
-    feedback     String    @db.Text
-    Message      Message[]
-    question     String?
+    id                             String    @id @default(cuid())
+    Message                        Message[]
+    question                       String?
+    understandingOfConcept         String    @db.Text
+    technicalAccuracy              String    @db.Text
+    realWorldExample               String    @db.Text
+    explanationAndCommunication    String    @db.Text
+    suggestionsForImprovement      Json //string[]
+    furtherLearningRecommendations Json //string[]
+    softSkills                     String    @db.Text
 }
 
 enum InterviewPhase {
@@ -102,7 +107,7 @@ model Topic {
 model InterviewConfiguration {
     id                String      @id @default(cuid())
     yearsOfExperience Int
-    durationInMinutes Int         @default(15)
+    numberOfQuestions Int         @default(10)
     topics            Topic[]
     industry          Industry    @relation(fields: [industryId], references: [id])
     Interview         Interview[]
@@ -129,16 +134,19 @@ model InterviewResult {
 }
 
 model InterviewResultUnit {
-    id                String           @id @default(cuid())
-    question          String           @db.Text
-    answer            String           @db.Text
-    relevantTopics    Topic[]
-    InterviewResult   InterviewResult? @relation(fields: [interviewResultId], references: [id])
-    interviewResultId String?
-    satisfaction      Int
-    feedback          String           @db.Text
-    areasToImproveOn  Json
-    suggestions       Json //{answerExcerpt: string, suggestion: string}[];
+    id                             String           @id @default(cuid())
+    question                       String           @db.Text
+    answer                         String           @db.Text
+    relevantTopics                 Topic[]
+    InterviewResult                InterviewResult? @relation(fields: [interviewResultId], references: [id])
+    interviewResultId              String?
+    understandingOfConcept         String           @db.Text
+    technicalAccuracy              String           @db.Text
+    realWorldExample               String           @db.Text
+    explanationAndCommunication    String           @db.Text
+    suggestionsForImprovement      Json //string[]
+    furtherLearningRecommendations Json //string[]
+    softSkills                     String           @db.Text
 }
 
 model Session {

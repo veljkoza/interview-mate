@@ -9,8 +9,16 @@ import { GetIntroductionResponse, GetNextQuestionResponse } from "../openai";
 import {
   GetQuestionsPromptParams,
   GetQuestionsPromptResponse,
+  GetQuestionsPromptV2Params,
+  GetQuestionsPromptV2Response,
   getQuestionsPrompt,
+  getQuestionsPromptV2,
 } from "./get-questions";
+import {
+  GetFeedbackForAnswerV2Params,
+  GetFeedbackForAnswerV2Response,
+  getFeedbackForAnswerV2Prompt,
+} from "./get-feedback-for-answers.v2";
 
 export type GetIntroductionPromptParams = {
   industry: string;
@@ -148,6 +156,8 @@ export const Prompts = {
   getTechnicalAnnouncement: getTechnicalAnnouncementPrompt,
   getFeedbackForAnswer: getFeedbackForAnswerPrompt,
   getQuestions: getQuestionsPrompt,
+  getQuestionsV2: getQuestionsPromptV2,
+  getFeedbackForAnswerV2: getFeedbackForAnswerV2Prompt,
 } as const;
 
 export type PromptsTypes = {
@@ -155,9 +165,17 @@ export type PromptsTypes = {
     GetFeedbackForAnswerParams,
     GetFeedbackForAnswerResponse
   >;
+  getFeedbackForAnswerV2: Prompt<
+    GetFeedbackForAnswerV2Params,
+    GetFeedbackForAnswerV2Response
+  >;
   getIntroduction: Prompt<GetIntroductionPromptParams, GetIntroductionResponse>;
   getNextQuestion: Prompt<GetNextQuestionPromptParams, GetNextQuestionResponse>;
   getQuestions: Prompt<GetQuestionsPromptParams, GetQuestionsPromptResponse>;
+  getQuestionsV2: Prompt<
+    GetQuestionsPromptV2Params,
+    GetQuestionsPromptV2Response
+  >;
 };
 
 type Prompt<P, R> = { params: P; response: R };

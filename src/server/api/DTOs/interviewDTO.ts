@@ -9,7 +9,7 @@ export const interviewDTO = {
         },
       },
       topics: true,
-      durationInMinutes: true,
+      numberOfQuestions: true,
       yearsOfExperience: true,
     },
   },

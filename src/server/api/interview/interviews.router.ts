@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc";
@@ -28,7 +29,7 @@ export const interviewRouter = createTRPCRouter({
         industry: IndustrySchema,
         topics: z.array(TopicSchema).min(1),
         yearsOfExperience: z.number().min(1),
-        durationInMinutes: z.number().min(10),
+        numberOfQuestions: z.number().min(5).max(30),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -44,7 +45,7 @@ export const interviewRouter = createTRPCRouter({
               connect: input.topics.map(({ id }) => ({ id })),
             },
             yearsOfExperience: input.yearsOfExperience,
-            durationInMinutes: input.durationInMinutes,
+            numberOfQuestions: input.numberOfQuestions,
           },
         });
       if (!interviewConfiguration)
@@ -74,14 +75,18 @@ export const interviewRouter = createTRPCRouter({
       });
 
       //add questions to interview
-      const generatedQuestions = MockInterviewAiService.getQuestions({
-        numberOfQuestions: 10,
+      const generatedQuestions = MockInterviewAiService.getQuestionsV2({
+        numberOfQuestions: input.numberOfQuestions,
+        difficulty: "senior",
+        role: input.industry.name,
+        topics: input.topics.map((topic) => topic.name),
+        questionTypes: ["behavioural", "situational", "technical"],
       }).then(async (res) => {
         console.log({ res }, "hazbula");
         await ctx.prisma.interview.update({
           where: { id: interview.id },
           data: {
-            questions: res.questions,
+            questions: res.questions.map((question) => question.question),
           },
         });
       });
@@ -116,40 +121,37 @@ export const interviewRouter = createTRPCRouter({
 
       // 1.
       // get feedback and next question from openAi
-      const aiResponse = await MockInterviewAiService.getFeedbackForAnswer({
+      MockInterviewAiService.getFeedbackForAnswerV2({
         answer: input.answer,
         question: input.question,
-      });
+      }).then(async (aiResponse) => {
+        await ctx.prisma.messageMetadata.create({
+          data: {
+            question: input.question,
+            ...aiResponse,
+          },
+        });
 
-      console.log({ aiResponse });
+        console.log({ aiResponse });
 
-      // create messageMetadata
-      const messageMeta = await ctx.prisma.messageMetadata.create({
-        data: {
-          feedback: aiResponse.feedback,
-          satisfaction: +aiResponse.correctness,
-          question: input.question,
-        },
+        await ctx.prisma.interviewResultUnit.create({
+          data: {
+            answer: input.answer,
+            question: input.question,
+
+            interviewResultId: interview.interviewResultId,
+            relevantTopics: {
+              connect: [].map(({ id }) => ({ id })),
+            },
+            ...aiResponse,
+          },
+        });
       });
 
       // const matchingTopics = interview.configuration.topics.filter((topic) =>
       //   aiResponse.topics.includes(topic.name)
       // );
       // create interview result unit
-      void ctx.prisma.interviewResultUnit.create({
-        data: {
-          answer: input.answer,
-          question: input.question,
-          feedback: aiResponse.feedback,
-          satisfaction: +aiResponse.correctness,
-          interviewResultId: interview.interviewResultId,
-          relevantTopics: {
-            connect: [].map(({ id }) => ({ id })),
-          },
-          areasToImproveOn: aiResponse.areasToImproveOn,
-          suggestions: aiResponse.suggestions,
-        },
-      });
 
       // 2.
       //create message for user and append metadata
@@ -158,7 +160,7 @@ export const interviewRouter = createTRPCRouter({
           content: input.answer,
           sender: "USER",
           interview: { connect: { id: input.id } },
-          metadata: { connect: { id: messageMeta.id } },
+          // metadata: { connect: { id: messageMeta.id } },
         },
         select: messageDTO,
       });
@@ -176,9 +178,8 @@ export const interviewRouter = createTRPCRouter({
         "That was a great interview.",
         "We are finished here!",
       ];
-      // 10 minuta * 2 = 20 pitanja
       const isEnd =
-        numberOfQuestions >= interview.configuration.durationInMinutes * 1.2; //TODO: Replace this with timer
+        numberOfQuestions >= (interview.questions as string[]).length; //TODO: Replace this with timer
       if (isEnd) {
         await InterviewRepository.updateInterviewById(ctx, {
           id: input.id,
@@ -285,6 +286,7 @@ export const interviewRouter = createTRPCRouter({
         if (messages.length > 3) return getNextTechnicalQuestion();
         return getNextTechnicalQuestion();
       };
+
       const contents = await getContent();
 
       const newMessages = contents.map((content, i) =>
