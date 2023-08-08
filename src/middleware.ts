@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 export default authMiddleware({
   publicRoutes: [
     "/",
+    "/speech",
     "/about",
     "/for-companies",
     "/pricing",
