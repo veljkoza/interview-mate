@@ -9,7 +9,7 @@ import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import SuperJSON from "superjson";
-import { RouterOutputs, api } from "~/utils/api";
+import { type RouterOutputs, api } from "~/utils/api";
 import type { SENDER } from "@prisma/client";
 import { useInterview } from "~/domain/mock-interview/hooks/useInterview";
 import { Button } from "~/components/buttons";
@@ -17,6 +17,8 @@ import { Message } from "~/domain/mock-interview/components/chat";
 import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "~/consts/navigation";
+import { Dictaphone } from "~/components/dictaphone/dictaphone";
+import { ChatDictaphone } from "~/domain/mock-interview/components/chat-dictaphone";
 
 export type TInterviewDTO = RouterOutputs["interview"]["create"];
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
@@ -78,6 +80,11 @@ const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
             placeholder="Type your message..."
           />
         </Panel>
+        <Dictaphone
+          render={({ start, stop }) => (
+            <ChatDictaphone onStart={() => start()} onStop={() => stop()} />
+          )}
+        />
         <button
           className="flex h-16 w-16 items-center justify-center rounded-br-md rounded-tr-md border-2   border-accent-secondary text-accent-secondary"
           disabled={shouldDisableForm}
