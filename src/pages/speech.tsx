@@ -5,9 +5,9 @@ import { Heading } from "~/components/typography";
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Button } from "~/components/buttons";
-import { Message } from "~/domain/mock-interview/components/chat";
 import { ChatDictaphone } from "~/domain/mock-interview/components/chat-dictaphone";
+import { api } from "~/utils/api";
+import { Message } from "~/domain/mock-interview/components/chat";
 
 const Dictaphone = dynamic(
   () =>
@@ -26,23 +26,27 @@ const Speech: NextPage = () => {
     setIsClient(true);
   }, []);
 
+  const { data: azureData, isLoading } = api.azure.getToken.useQuery();
+  if (isLoading) return <Heading>Token loading...</Heading>;
+  if (!azureData) return <Heading>Couldnt fetch token</Heading>;
+
   if (!isClient) return null;
   return (
     <main>
       <Container className="py-10">
         <Heading className="mb-10">Speech</Heading>
         <Dictaphone
-          render={({ start, stop, reset, listening, transcript }) => (
-            <ChatDictaphone />
-            // <div>
-            //   <p>Microphone: {listening ? "on" : "off"}</p>
-            //   <div className="flex gap-5">
-            //     <Button onClick={() => start()}>Start</Button>
-            //     <Button onClick={() => stop()}>Stop</Button>
-            //     <Button onClick={() => reset()}>Reset</Button>
-            //   </div>
-            //   <Message sender="USER" message={transcript} />
-            // </div>
+          region={azureData.region}
+          authorizationToken={azureData.token}
+          render={({ start, stop, listening, transcript }) => (
+            <>
+              <ChatDictaphone
+                onStart={() => start({ language: "en-US", continuous: true })}
+                onStop={() => stop()}
+                isRecording={listening}
+              />
+              <Message sender="USER" message={transcript} />
+            </>
           )}
         />
       </Container>

@@ -1,18 +1,22 @@
-import { type FC, useEffect } from "react";
+import { type FC, useEffect, useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 
 import createSpeechServicesPonyfill from "web-speech-cognitive-services";
 
-
-
 interface UseDictaphoneProps {
   region: string;
-  subscriptionKey: string;
+  authorizationToken: string;
 }
 
+type StartListeningParams = Parameters<
+  typeof SpeechRecognition.startListening
+>["0"];
+
 export const useDictaphone = (props: UseDictaphoneProps) => {
+  const [speechRecognition, setSpeechRecognition] =
+    useState<typeof SpeechRecognition>();
   const {
     isMicrophoneAvailable,
     browserSupportsSpeechRecognition,
@@ -21,24 +25,48 @@ export const useDictaphone = (props: UseDictaphoneProps) => {
     resetTranscript,
   } = useSpeechRecognition();
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const { SpeechRecognition: AzureSpeechRecognition } =
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-      createSpeechServicesPonyfill({
-        credentials: {
-          region: props.region,
-          subscriptionKey: props.subscriptionKey,
-        },
-      });
-    SpeechRecognition.applyPolyfill(AzureSpeechRecognition);
+    const applyPolyfill = () => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { SpeechRecognition: AzureSpeechRecognition } =
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+        createSpeechServicesPonyfill({
+          credentials: {
+            region: props.region,
+            authorizationToken: props.authorizationToken,
+          },
+        });
+      SpeechRecognition.applyPolyfill(AzureSpeechRecognition);
+      setSpeechRecognition(SpeechRecognition);
+    };
+    void applyPolyfill();
   }, []);
+
+  const start = (params?: StartListeningParams) => {
+    speechRecognition
+      ?.startListening(params)
+      .then((res) => {
+        console.log({ res });
+      })
+      .catch((err) => {
+        console.warn(err);
+      });
+  };
+
+  console.log({ speechRecognition });
+
+  const stop = () =>
+    speechRecognition?.stopListening().then((res) => {
+      console.log({ res }, "stop");
+    });
 
   return {
     isMicrophoneAvailable,
     browserSupportsSpeechRecognition,
-    SpeechRecognition,
     listening,
     transcript,
+    start,
+    stop,
+    speechRecognition,
     resetTranscript,
   };
 };

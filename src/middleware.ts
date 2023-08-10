@@ -12,6 +12,7 @@ export default authMiddleware({
     "/api/trpc/industries.getAll",
     "/api/trpc/topic.getTopicsByIndustryId",
     "/api/trpc/interview.create",
+    "/api/trpc/azure.getToken",
   ],
 });
 

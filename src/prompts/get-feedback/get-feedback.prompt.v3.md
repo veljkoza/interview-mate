@@ -12,3 +12,8 @@ AI, please provide detailed feedback on this response in the following JSON form
 "soft_skills": "Did the user present their response confidently and professionally?",
 "further_learning_recommendations": "What topics or resources should the user look into to improve their understanding of the concept and correct any inaccuracies in their response?",
 }
+
+
+
+ <!-- TODO -->
+ <!-- Give thought provoking insights -->

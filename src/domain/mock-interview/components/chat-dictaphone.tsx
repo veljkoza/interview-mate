@@ -6,21 +6,23 @@ const delays = ["delay-0", "delay-75", "delay-100"];
 interface IChatDictaphone {
   onStart: () => void;
   onStop: () => void;
+  isRecording: boolean;
 }
-export const ChatDictaphone: FC<IChatDictaphone> = ({ onStart, onStop }) => {
-  const [isRecording, setIsRecording] = useState(false);
-
+export const ChatDictaphone: FC<IChatDictaphone> = ({
+  onStart,
+  onStop,
+  isRecording,
+}) => {
   const start = () => {
-    setIsRecording(true);
     onStart();
   };
   const stop = () => {
-    setIsRecording(false);
     onStop?.();
   };
 
   const handleOnClick = () => {
-    if (isRecording) {
+    console.log("test");
+    if (!isRecording) {
       start();
     } else {
       stop();

@@ -11,6 +11,9 @@ const server = z.object({
   // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
   CHAT_GPT_MODEL: z.string(),
   OPENAI_API_KEY: z.string(),
+  AZURE_REGION: z.string(),
+  AZURE_SPEECH_RECOGNITION_SERVICE_KEY: z.string(),
+  AZURE_COGNITIVE_TOKEN_ENDPOINT: z.string(),
 });
 
 /**
@@ -32,6 +35,10 @@ const processEnv = {
   NODE_ENV: process.env.NODE_ENV,
   CHAT_GPT_MODEL: process.env.CHAT_GPT_MODEL,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+  AZURE_REGION: process.env.AZURE_REGION,
+  AZURE_SPEECH_RECOGNITION_SERVICE_KEY:
+    process.env.AZURE_SPEECH_RECOGNITION_SERVICE_KEY,
+  AZURE_COGNITIVE_TOKEN_ENDPOINT: process.env.AZURE_COGNITIVE_TOKEN_ENDPOINT,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 
