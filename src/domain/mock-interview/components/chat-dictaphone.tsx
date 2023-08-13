@@ -25,7 +25,7 @@ export const ChatDictaphone = ({
   if (disabled) return <ChatDictaphoneDisabled />;
   return (
     <button
-      className="relative flex h-12 w-12 items-center justify-center rounded-full bg-accent-secondary"
+      className="relative flex min-h-[50px] min-w-[50px] items-center justify-center rounded-full bg-accent-secondary"
       onClick={(e) => {
         e.preventDefault();
         handleOnClick();
@@ -48,7 +48,7 @@ export const ChatDictaphone = ({
 const ChatDictaphoneDisabled = () => (
   <button
     disabled
-    className="relative flex h-12 w-12 cursor-not-allowed items-center justify-center rounded-full bg-gray-600"
+    className="relative flex min-h-[50px] min-w-[50px] cursor-not-allowed items-center justify-center rounded-full bg-gray-600"
   >
     <BiMicrophone className="text-xl" />
   </button>
