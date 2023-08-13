@@ -4,49 +4,54 @@ import { FaStop } from "react-icons/fa";
 
 const delays = ["delay-0", "delay-75", "delay-100"];
 interface IChatDictaphone {
-  onStart: () => void;
-  onStop: () => void;
+  onClick: () => void;
   isRecording: boolean;
+  disabled?: boolean;
 }
-export const ChatDictaphone: FC<IChatDictaphone> = ({
-  onStart,
-  onStop,
+export const ChatDictaphone = ({
+  onClick,
   isRecording,
-}) => {
-  const start = () => {
-    onStart();
-  };
-  const stop = () => {
-    onStop?.();
-  };
-
+  disabled,
+}: IChatDictaphone) => {
   const handleOnClick = () => {
-    console.log("test");
-    if (!isRecording) {
-      start();
-    } else {
-      stop();
-    }
+    onClick();
   };
 
   const renderIcon = () => {
     if (isRecording) return <FaStop className="text-xl" />;
     return <BiMicrophone className="text-xl" />;
   };
+
+  if (disabled) return <ChatDictaphoneDisabled />;
   return (
     <button
       className="relative flex h-12 w-12 items-center justify-center rounded-full bg-accent-secondary"
-      onClick={() => handleOnClick()}
+      onClick={(e) => {
+        e.preventDefault();
+        handleOnClick();
+      }}
     >
-      {delays.map((delay, i) => (
-        <div
-          key={i}
-          className={`absolute  -z-10 h-9 w-9 animate-bounce animate-ping  rounded-full bg-accent-secondary opacity-40 ${
-            delay || ""
-          }`}
-        ></div>
-      ))}
+      {isRecording &&
+        delays.map((delay, i) => (
+          <div
+            key={i}
+            className={`absolute  -z-10 h-9 w-9 animate-bounce animate-ping  rounded-full bg-accent-secondary opacity-40 ${
+              delay || ""
+            }`}
+          ></div>
+        ))}
       {renderIcon()}
     </button>
   );
 };
+
+const ChatDictaphoneDisabled = () => (
+  <button
+    disabled
+    className="relative flex h-12 w-12 cursor-not-allowed items-center justify-center rounded-full bg-gray-600"
+  >
+    <BiMicrophone className="text-xl" />
+  </button>
+);
+
+ChatDictaphone.Disabled = ChatDictaphoneDisabled;

@@ -3,11 +3,11 @@ import { type NextPage } from "next";
 import { Container } from "~/components/containers";
 import { Heading } from "~/components/typography";
 
-import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { ChatDictaphone } from "~/domain/mock-interview/components/chat-dictaphone";
 import { api } from "~/utils/api";
 import { Message } from "~/domain/mock-interview/components/chat";
+import { useIsClient } from "~/hooks";
 
 const Dictaphone = dynamic(
   () =>
@@ -19,12 +19,7 @@ const Dictaphone = dynamic(
 );
 
 const Speech: NextPage = () => {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    // Set the isClient state to true once the component is mounted
-    setIsClient(true);
-  }, []);
+  const { isClient } = useIsClient();
 
   const { data: azureData, isLoading } = api.azure.getToken.useQuery();
   if (isLoading) return <Heading>Token loading...</Heading>;

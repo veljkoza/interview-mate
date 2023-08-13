@@ -6,8 +6,8 @@ import SpeechRecognition, {
 import createSpeechServicesPonyfill from "web-speech-cognitive-services";
 
 interface UseDictaphoneProps {
-  region: string;
-  authorizationToken: string;
+  region?: string;
+  authorizationToken?: string;
 }
 
 type StartListeningParams = Parameters<
@@ -25,6 +25,7 @@ export const useDictaphone = (props: UseDictaphoneProps) => {
     resetTranscript,
   } = useSpeechRecognition();
   useEffect(() => {
+    if (!props.authorizationToken || !props.region) return;
     const applyPolyfill = () => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const { SpeechRecognition: AzureSpeechRecognition } =
@@ -39,7 +40,7 @@ export const useDictaphone = (props: UseDictaphoneProps) => {
       setSpeechRecognition(SpeechRecognition);
     };
     void applyPolyfill();
-  }, []);
+  }, [props.region, props.authorizationToken]);
 
   const start = (params?: StartListeningParams) => {
     speechRecognition
@@ -55,7 +56,7 @@ export const useDictaphone = (props: UseDictaphoneProps) => {
   console.log({ speechRecognition });
 
   const stop = () =>
-    speechRecognition?.stopListening().then((res) => {
+    speechRecognition?.abortListening().then((res) => {
       console.log({ res }, "stop");
     });
 
