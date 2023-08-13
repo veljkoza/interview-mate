@@ -77,6 +77,7 @@ export const MockInterviewAiService: MockInterviewServiceType = {
     });
   },
   getFeedbackForAnswerV2: async (params) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const helson: GetFeedbackForAnswerV2Response = await getOpenAiResponse({
       prompt: Prompts.getFeedbackForAnswerV2(params),
       fallback: {},
