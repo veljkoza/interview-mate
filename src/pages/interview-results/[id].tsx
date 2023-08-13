@@ -7,7 +7,11 @@ import { SatisfactionPercentage } from "../my-interviews";
 import { Heading } from "~/components/typography";
 import { Circle } from "../interview-creator";
 import { RouterOutputs, api } from "~/utils/api";
-import { useEffect, useState } from "react";
+import { FC, PropsWithChildren, ReactNode, useEffect, useState } from "react";
+import { Panel } from "~/components/panel";
+import { Logo } from "~/components/logo";
+import Link from "next/link";
+import { AppHeader } from "~/components/app-header";
 
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 type InterviewResultDTO =
@@ -65,13 +69,22 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
   if (!interviewResult) return <Heading size={1}>404</Heading>;
   return (
     <main className="relative">
-      <section className="py-10">
+      <section className="py-10 ">
         <Container>
+          <div className="mb-10 flex flex-wrap gap-6">
+            {interviewResult.units.map((unit, i) => (
+              <Circle
+                key={i}
+                value={(i + 1).toString()}
+                onClick={() => setSelectedQuestionIndex(i)}
+              />
+            ))}
+          </div>
           <div>
             <Heading size={3} variant="primary">
               {selectedQuestionIndex + 1}. {selectedQuestion?.question}
             </Heading>
-            <div className="mt-10">
+            <div className="mt-20">
               <Message
                 sender="USER"
                 message={selectedQuestion?.answer}
@@ -79,20 +92,111 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
               />
             </div>
           </div>
-          <div className="mt-20 ">
-            <div className="flex items-center justify-between">
-              <h1 className=" text-2xl text-accent-secondary">
-                Feedback from interview mate:
-              </h1>
-              <SatisfactionPercentage
-                percentage={+`${selectedQuestion?.satisfaction || ""}`}
-              />
+          <div className="mt-20 grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <FeedbackUnit
+              title={
+                <FeedbackUnit.Title>
+                  Understanding of concept:
+                </FeedbackUnit.Title>
+              }
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.understandingOfConcept}
+                </FeedbackUnit.Paragraph>
+              }
+            />
+            <FeedbackUnit
+              title={
+                <FeedbackUnit.Title>Technical accuracy:</FeedbackUnit.Title>
+              }
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.technicalAccuracy}
+                </FeedbackUnit.Paragraph>
+              }
+            />
+            <FeedbackUnit
+              title={
+                <FeedbackUnit.Title>Real world example:</FeedbackUnit.Title>
+              }
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.realWorldExample}
+                </FeedbackUnit.Paragraph>
+              }
+            />
+            <FeedbackUnit
+              title={
+                <FeedbackUnit.Title>
+                  Explanation and communication:
+                </FeedbackUnit.Title>
+              }
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.explanationAndCommunication}
+                </FeedbackUnit.Paragraph>
+              }
+            />
+            {/* <FeedbackUnit
+              title={<FeedbackUnit.Title>Soft skills:</FeedbackUnit.Title>}
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.softSkills}
+                </FeedbackUnit.Paragraph>
+              }
+            /> */}
+            {/* <FeedbackUnit
+              title={<FeedbackUnit.Title>Suggestions:</FeedbackUnit.Title>}
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.suggestionsForImprovement?.toString()}
+                </FeedbackUnit.Paragraph>
+              }
+            /> */}
+          </div>
+          <div className="mt-20">
+            <div className="mb-10 flex items-center gap-6">
+              <Logo />
+              <Heading size={4}>Things you can do to improve answer:</Heading>
             </div>
-            <div className="mt-10">
-              <Message
-                sender="INTERVIEWER"
-                message={selectedQuestion?.feedback}
-              />
+            <div className=" grid grid-cols-1 gap-8 lg:grid-cols-2">
+              {(selectedQuestion?.suggestionsForImprovement as string[]).map(
+                (suggestion) => (
+                  <Panel key={suggestion} className="p-5">
+                    <p className="text-lg text-accent-secondary">
+                      {suggestion}
+                    </p>
+                  </Panel>
+                )
+              )}
+            </div>
+          </div>
+          <div className="mt-20">
+            <div className="mb-10 flex items-center gap-6">
+              <Logo />
+              <Heading size={4}>
+                Keep learning with these{" "}
+                <span className="text-accent-secondary">Google</span> search
+                queries:
+              </Heading>
+            </div>
+            <div className="flex flex-col gap-8">
+              {(
+                selectedQuestion?.furtherLearningRecommendations as string[]
+              ).map((recommendation) => (
+                <div key={recommendation}>
+                  <Link
+                    target="_blank"
+                    href={`https://www.google.com/search?q=${recommendation.replace(
+                      " ",
+                      "+"
+                    )}`}
+                    className="border-b border-b-transparent text-lg text-accent-secondary hover:border-b-accent-secondary"
+                  >
+                    {recommendation}
+                  </Link>
+                </div>
+              ))}
             </div>
           </div>
           <div className="mt-10 flex items-center justify-end gap-4">
@@ -104,6 +208,36 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
     </main>
   );
 };
+
+const FeedbackUnit = ({
+  title,
+  body,
+}: {
+  title: ReactNode;
+  body: ReactNode;
+}) => (
+  <Panel className="p-5">
+    <div className="flex items-center justify-between">
+      {title}
+      {/* <SatisfactionPercentage
+  percentage={+`${selectedQuestion?.satisfaction || ""}`}
+/> */}
+    </div>
+    <div className="mt-5">{body}</div>
+  </Panel>
+);
+
+const FeedbackUnitTitle = ({ children }: PropsWithChildren) => (
+  <Heading variant="secondary" size={4}>
+    {children}
+  </Heading>
+);
+const FeedbackUnitParagraph = ({ children }: PropsWithChildren) => (
+  <p className="font-light text-muted-fg lg:text-lg">{children}</p>
+);
+
+FeedbackUnit.Title = FeedbackUnitTitle;
+FeedbackUnit.Paragraph = FeedbackUnitParagraph;
 
 export const getStaticProps: GetStaticProps<{ id: string }> = (context) => {
   const id = context.params?.id;

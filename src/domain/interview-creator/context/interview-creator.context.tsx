@@ -17,7 +17,7 @@ const initialInterviewConfig: RouterInputs["interview"]["create"] = {
     name: "",
   },
   yearsOfExperience: -1,
-  durationInMinutes: -1,
+  numberOfQuestions: -1,
 };
 
 const DEFAULT_CONTEXT_VALUE = {
@@ -46,7 +46,7 @@ type TActionType =
   | "SET_INDUSTRY"
   | "SET_TOPICS"
   | "SET_YEARS_OF_EXPERIENCE"
-  | "SET_INTERVIEW_DURATION";
+  | "SET_NUMBER_OF_QUESTIONS";
 type TAction = {
   type: TActionType;
   payload?: unknown;
@@ -98,14 +98,14 @@ const interviewCreatorReducer = (
           yearsOfExperience: payload,
         },
       };
-    case "SET_INTERVIEW_DURATION":
+    case "SET_NUMBER_OF_QUESTIONS":
       if (typeof payload !== "number")
-        throw new Error("durationInMinutes should be a number");
+        throw new Error("numberOfQuestions should be a number");
       return {
         ...prevState,
         interviewConfig: {
           ...prevState.interviewConfig,
-          durationInMinutes: payload,
+          numberOfQuestions: payload,
         },
       };
 

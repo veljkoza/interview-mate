@@ -3,10 +3,12 @@ import { Configuration, OpenAIApi } from "openai";
 import {
   type GetIntroductionPromptParams,
   type GetNextQuestionPromptParams,
-  type GetTechnicalAnnouncementPromptParams,
   Prompts,
-} from "./prompts";
+  MockInterviewServiceType,
+} from "./prompts/prompts";
 import { env } from "~/env.mjs";
+import { GetFeedbackForAnswerParams } from "./prompts/get-feedback-for-answer";
+import { GetFeedbackForAnswerV2Response } from "./prompts/get-feedback-for-answers.v2";
 const configuration = new Configuration({
   organization: "org-wGQSQOlnl30MtUnbW35FfICR",
   apiKey: env.OPENAI_API_KEY,
@@ -42,10 +44,8 @@ const getOpenAiResponse = async <R>(props: { prompt: string; fallback: R }) => {
   }
 };
 
-export const MockInterviewAiService = {
-  getIntroduction: async (
-    params: GetIntroductionPromptParams
-  ): Promise<GetIntroductionResponse> => {
+export const MockInterviewAiService: MockInterviewServiceType = {
+  getIntroduction: async (params) => {
     const fallback = {
       introduction: "error",
       introductionQuestion: "error",
@@ -56,9 +56,7 @@ export const MockInterviewAiService = {
       fallback,
     });
   },
-  getNextQuestion: async (
-    params: GetNextQuestionPromptParams
-  ): Promise<GetNextQuestionResponse> => {
+  getNextQuestion: async (params) => {
     const fallback: GetNextQuestionResponse = {
       feedback: "error",
       nextQuestion: "error",
@@ -72,37 +70,40 @@ export const MockInterviewAiService = {
       fallback,
     });
   },
-  // getTechnicalAnnouncement: async (
-  //   params: GetTechnicalAnnouncementPromptParams
-  // ): Promise<GetTechnicalAnnouncementResponse> => {
-  //   const fallback: GetTechnicalAnnouncementResponse = {
-  //     announcement: "error",
-  //     question: "error",
-  //   };
-  //   const res = await getOpenAiResponse<GetTechnicalAnnouncementResponse>({
-  //     prompt: Prompts.getTechnicalAnnouncement(params),
-  //     fallback,
-  //   });
-  //   console.log("hazbula", { res });
-  //   return res;
-  // },
+  getFeedbackForAnswer: async (params) => {
+    return await getOpenAiResponse({
+      prompt: Prompts.getFeedbackForAnswer(params),
+      fallback: {},
+    });
+  },
+  getFeedbackForAnswerV2: async (params) => {
+    return await getOpenAiResponse({
+      prompt: Prompts.getFeedbackForAnswerV2(params),
+      fallback: {},
+    });
+  },
+  getQuestions: async (params) =>
+    await getOpenAiResponse({
+      prompt: Prompts.getQuestions(params),
+      fallback: {},
+    }),
+  getQuestionsV2: async (params) =>
+    await getOpenAiResponse({
+      prompt: Prompts.getQuestionsV2(params),
+      fallback: {},
+    }),
 };
 
-type GetIntroductionResponse = {
+export type GetIntroductionResponse = {
   introduction: string;
   nameOfTheJobPosting: string;
   introductionQuestion: string;
 };
 
-type GetNextQuestionResponse = {
+export type GetNextQuestionResponse = {
   response: string;
   nextQuestion: string;
   feedback: string;
   satisfaction: number;
   topics: string[];
-};
-
-type GetTechnicalAnnouncementResponse = {
-  announcement: string;
-  question: string;
 };
