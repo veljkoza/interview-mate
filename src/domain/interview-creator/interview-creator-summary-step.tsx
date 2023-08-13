@@ -8,6 +8,7 @@ import { api } from "~/utils/api";
 import { Logo } from "~/components/logo";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "~/consts/navigation";
+import { BouncyLoader } from "~/components/loaders";
 
 const SingleSummary = (
   props: { title: string; className?: string } & PropsWithChildren
@@ -40,13 +41,7 @@ export const InterviewCreatorSummaryStep = () => {
 
   const handleSubmit = () => mutate(interviewConfig);
 
-  if (isLoading) {
-    return (
-      <aside className="fixed inset-0 flex h-full w-full items-center justify-center bg-background">
-        <Logo h={176} w={176} className="h-44 w-44 animate-bounce" />
-      </aside>
-    );
-  }
+  if (isLoading) return <BouncyLoader className="fixed inset-0" />;
 
   return (
     <Container>

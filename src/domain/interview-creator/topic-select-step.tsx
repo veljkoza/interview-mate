@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FC } from "react";
 import { Button } from "~/components/buttons";
 import { Container } from "~/components/containers";
 import { Panel } from "~/components/panel";
-import { SelectOption } from "~/components/select-option";
+import { FocusedOption, SelectOption } from "~/components/select-option";
 import { Heading } from "~/components/typography";
 import { useInterviewCreator } from "./context/interview-creator.context";
 import { Topic } from "@prisma/client";
@@ -49,21 +49,32 @@ export const TopicSelectStep = () => {
     id: interviewCreatorState.interviewConfig.industry.id,
   });
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!topics) return <div>No data...</div>;
+  const getBody = () => {
+    if (isLoading)
+      return Array(50)
+        .fill("123")
+        .map((el, i) => <SelectOption.Ghost key={i} />);
+    if (!topics)
+      return (
+        <Heading>
+          Ooops. It looks like we cant show you this data right now.
+        </Heading>
+      );
+    return topics.map((topic) => (
+      <SelectOption
+        key={topic.id}
+        onClick={() => handleTopicClick(topic)}
+        text={topic.name}
+        variant={getOptionVariant(topic)}
+      />
+    ));
+  };
   return (
     <Container>
       <Heading className="mt-10">Select relevant topics.</Heading>
 
       <Panel className="mt-14 flex h-[450px] flex-wrap gap-4 overflow-y-scroll">
-        {topics.map((topic) => (
-          <SelectOption
-            key={topic.id}
-            onClick={() => handleTopicClick(topic)}
-            text={topic.name}
-            variant={getOptionVariant(topic)}
-          />
-        ))}
+        {getBody()}
       </Panel>
       <div className="mt-8 flex items-center justify-between">
         <Button
@@ -76,5 +87,41 @@ export const TopicSelectStep = () => {
         </Button>
       </div>
     </Container>
+  );
+};
+
+const IndustriesList: FC<{
+  onClick: (industry: Topic) => void;
+  activeItem: string;
+  industryId: string;
+}> = ({ activeItem, onClick, industryId }) => {
+  const { data: topics, isLoading } = api.topic.getTopicsByIndustryId.useQuery({
+    id: industryId,
+  });
+  const getBody = () => {
+    if (isLoading)
+      return Array(50)
+        .fill("123")
+        .map((el, i) => <SelectOption.Ghost key={i} />);
+    if (!topics)
+      return (
+        <Heading>
+          Ooops. It looks like we cant show you this data right now.
+        </Heading>
+      );
+    return topics.map((industry) => (
+      <FocusedOption
+        activeItem={activeItem}
+        onClick={() => onClick(industry)}
+        item={industry.name}
+        key={industry.id}
+      />
+    ));
+  };
+
+  return (
+    <Panel className="mt-14 flex h-[450px] flex-wrap gap-4 overflow-y-scroll">
+      {getBody()}
+    </Panel>
   );
 };
