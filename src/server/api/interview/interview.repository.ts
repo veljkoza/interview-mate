@@ -65,7 +65,10 @@ export const updateInterviewById = async (
 
   const newInterview = await ctx.prisma.interview.update({
     where: { id: data.id },
-    data,
+    data: {
+      ...data,
+      questions: data.questions as string[],
+    },
     include: { messages: true, configuration: true },
   });
 

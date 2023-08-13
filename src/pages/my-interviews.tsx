@@ -64,11 +64,11 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
 
   const handleClick = () => {
     if (interview.status === "ACTIVE") {
-      router.replace(`${ROUTES["mock-interview"]}/${interview.id}`);
+      router.push(`${ROUTES["mock-interview"]}/${interview.id}`);
       return;
     }
     if (interview.status === "COMPLETED") {
-      router.replace(
+      router.push(
         `${ROUTES["interview-results"]}/${interview.interviewResultId || ""}`
       );
     }

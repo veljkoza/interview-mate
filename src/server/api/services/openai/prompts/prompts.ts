@@ -1,5 +1,24 @@
 import { InterviewConfiguration } from "@prisma/client";
 import { join } from "path";
+import {
+  GetFeedbackForAnswerParams,
+  GetFeedbackForAnswerResponse,
+  getFeedbackForAnswerPrompt,
+} from "./get-feedback-for-answer";
+import { GetIntroductionResponse, GetNextQuestionResponse } from "../openai";
+import {
+  GetQuestionsPromptParams,
+  GetQuestionsPromptResponse,
+  GetQuestionsPromptV2Params,
+  GetQuestionsPromptV2Response,
+  getQuestionsPrompt,
+  getQuestionsPromptV2,
+} from "./get-questions";
+import {
+  GetFeedbackForAnswerV2Params,
+  GetFeedbackForAnswerV2Response,
+  getFeedbackForAnswerV2Prompt,
+} from "./get-feedback-for-answers.v2";
 
 export type GetIntroductionPromptParams = {
   industry: string;
@@ -135,4 +154,35 @@ export const Prompts = {
   getIntroduction: getIntroductionPrompt,
   getNextQuestion: getNextQuestionPrompt,
   getTechnicalAnnouncement: getTechnicalAnnouncementPrompt,
+  getFeedbackForAnswer: getFeedbackForAnswerPrompt,
+  getQuestions: getQuestionsPrompt,
+  getQuestionsV2: getQuestionsPromptV2,
+  getFeedbackForAnswerV2: getFeedbackForAnswerV2Prompt,
+} as const;
+
+export type PromptsTypes = {
+  getFeedbackForAnswer: Prompt<
+    GetFeedbackForAnswerParams,
+    GetFeedbackForAnswerResponse
+  >;
+  getFeedbackForAnswerV2: Prompt<
+    GetFeedbackForAnswerV2Params,
+    GetFeedbackForAnswerV2Response
+  >;
+  getIntroduction: Prompt<GetIntroductionPromptParams, GetIntroductionResponse>;
+  getNextQuestion: Prompt<GetNextQuestionPromptParams, GetNextQuestionResponse>;
+  getQuestions: Prompt<GetQuestionsPromptParams, GetQuestionsPromptResponse>;
+  getQuestionsV2: Prompt<
+    GetQuestionsPromptV2Params,
+    GetQuestionsPromptV2Response
+  >;
+};
+
+type Prompt<P, R> = { params: P; response: R };
+export type PromptFn<T extends keyof PromptsTypes> = (
+  params: PromptsTypes[T]["params"]
+) => Promise<PromptsTypes[T]["response"]>;
+
+export type MockInterviewServiceType = {
+  [K in keyof PromptsTypes]: PromptFn<K>;
 };

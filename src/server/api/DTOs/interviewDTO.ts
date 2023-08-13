@@ -9,7 +9,7 @@ export const interviewDTO = {
         },
       },
       topics: true,
-      durationInMinutes: true,
+      numberOfQuestions: true,
       yearsOfExperience: true,
     },
   },
@@ -18,4 +18,5 @@ export const interviewDTO = {
     include: { metadata: true },
   },
   status: true,
+  questions: true,
 };

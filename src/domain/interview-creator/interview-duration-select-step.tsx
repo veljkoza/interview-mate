@@ -6,40 +6,42 @@ import { FocusedOption } from "~/components/select-option";
 import { Heading } from "~/components/typography";
 import { useInterviewCreator } from "./context/interview-creator.context";
 
-export const InterviewDurationSelectStep = () => {
+const NO_OF_QUESTIONS = [5, 10, 20, 25, 30];
+
+export const NumberOfQuestionsSelectStep = () => {
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
     useInterviewCreator();
-  const selectedInterviewDuration =
-    interviewCreatorState.interviewConfig.durationInMinutes;
+  const selectedNumberOfQuestions =
+    interviewCreatorState.interviewConfig.numberOfQuestions;
 
   const getBottomText = () => {
-    if (selectedInterviewDuration <= 0) return "";
-    return `${selectedInterviewDuration} minutes`;
+    if (selectedNumberOfQuestions <= 0) return "";
+    return `${selectedNumberOfQuestions} questions`;
   };
 
   const handleOptionClick = (duration: number) =>
     dispatchInterviewCreatorUpdate({
-      type: "SET_INTERVIEW_DURATION",
+      type: "SET_NUMBER_OF_QUESTIONS",
       payload: duration,
     });
 
   return (
     <Container>
-      <Heading className="mt-10">Select interview duration.</Heading>
+      <Heading className="mt-10">Select number of questions.</Heading>
 
       <Panel className="mt-14 flex  items-center gap-4">
-        {[10, 20, 30, 40].map((duration) => (
+        {NO_OF_QUESTIONS.map((duration) => (
           <FocusedOption
             key={duration}
             className="grow"
             onClick={() => handleOptionClick(duration)}
             item={duration}
-            activeItem={selectedInterviewDuration}
+            activeItem={selectedNumberOfQuestions}
           />
         ))}
       </Panel>
       <div className="mt-8 flex items-center justify-between">
-        {!!selectedInterviewDuration && (
+        {!!selectedNumberOfQuestions && (
           <Heading size={3} variant="secondary">
             {getBottomText()}
           </Heading>
