@@ -14,7 +14,10 @@ export const useInterview = ({ id }: { id: string }) => {
 
   const { data: interview } = api.interview.getById.useQuery(
     { id },
-    { onSuccess: () => setTimeout(() => scrollToBottomOfMessages(), 150) }
+    {
+      onSuccess: () => setTimeout(() => scrollToBottomOfMessages(), 150),
+      enabled: !!id,
+    }
   );
   const { isLoading: isGettingMessages } = api.interview.getMessages.useQuery(
     {
@@ -22,6 +25,7 @@ export const useInterview = ({ id }: { id: string }) => {
     },
     {
       onSuccess: (res) => res.map(addMessageToState),
+      enabled: !!id,
     }
   );
 
