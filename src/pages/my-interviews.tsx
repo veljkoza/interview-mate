@@ -6,6 +6,7 @@ import { useState } from "react";
 import { BsArrowDown } from "react-icons/bs";
 import { AppHeader } from "~/components/app-header";
 import { Container } from "~/components/containers";
+import { BouncyLoader } from "~/components/loaders";
 import { Panel } from "~/components/panel";
 import { ROUTES } from "~/consts/navigation";
 import { RouterOutputs, api } from "~/utils/api";
@@ -19,8 +20,9 @@ export type InterviewDTO =
   RouterOutputs["interview"]["getInterviewsForUser"][0];
 
 const MyInterviews: NextPage = () => {
-  const { data: interviews } = api.interview.getInterviewsForUser.useQuery();
+  const { data: interviews, isLoading } = api.interview.getInterviewsForUser.useQuery();
 
+  if(isLoading) return <BouncyLoader className=""/>
   if (!interviews) return <div>No data</div>;
   return (
     <main className="relative">

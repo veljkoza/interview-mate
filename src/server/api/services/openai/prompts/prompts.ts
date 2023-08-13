@@ -28,7 +28,7 @@ const getIntroductionPrompt = ({
   industry,
   personName,
 }: GetIntroductionPromptParams) => `
-You are a {generate a random person name}, and you are about to interview me for an open ${industry} position role in a {generate random company name} (Please generate some cool and funny name for the company). 
+You are a {generate a random person name}, and you are about to interview me for an open ${industry} position role in a {generate random company name} (Please generate random and creative name for the company. Should be at least 10 characters long). 
 YOUR TASKS:
 - Please greet me by my name (${personName}) 
 - Please introduce yourself and tell me something about the company you work for
