@@ -8,6 +8,7 @@ import { ChatDictaphone } from "~/domain/mock-interview/components/chat-dictapho
 import { api } from "~/utils/api";
 import { Message } from "~/domain/mock-interview/components/chat";
 import { useIsClient } from "~/hooks";
+import { useDictaphone } from "~/components/dictaphone";
 
 const Dictaphone = dynamic(
   () =>
@@ -22,6 +23,18 @@ const Speech: NextPage = () => {
   const { isClient } = useIsClient();
 
   const { data: azureData, isLoading } = api.azure.getToken.useQuery();
+  const {
+    isMicrophoneAvailable,
+    start,
+    stop,
+    listening,
+    resetTranscript,
+    transcript,
+    browserSupportsSpeechRecognition,
+  } = useDictaphone({
+    authorizationToken: azureData?.token,
+    region: azureData?.region,
+  });
   if (isLoading) return <Heading>Token loading...</Heading>;
   if (!azureData) return <Heading>Couldnt fetch token</Heading>;
 
@@ -36,8 +49,14 @@ const Speech: NextPage = () => {
           render={({ start, stop, listening, transcript }) => (
             <>
               <ChatDictaphone
-                onStart={() => start({ language: "en-US", continuous: true })}
-                onStop={() => stop()}
+                onClick={() => {
+                  if (listening) {
+                    void stop();
+                    resetTranscript();
+                  } else {
+                    start({ continuous: true, language: "en-US" });
+                  }
+                }}
                 isRecording={listening}
               />
               <Message sender="USER" message={transcript} />
