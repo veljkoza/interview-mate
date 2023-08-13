@@ -272,17 +272,18 @@ export const interviewRouter = createTRPCRouter({
             industry: interview.configuration.industry.name,
             personName: user.firstName || user.username || "",
           });
+          ctx.prisma.interview
+            .update({
+              where: { id: input.id },
+              data: {
+                title: res.nameOfTheJobPosting,
+              },
+            })
+            .then(() => console.log(res.nameOfTheJobPosting, "hazbulax"));
           return [res.introduction, res.introductionQuestion];
         }
         if (lastMessageSentByInterviewer) return [];
-        // if (messages.length === 3) {
-        //   const res = await MockInterviewAiService.getTechnicalAnnouncement({
-        //     industry: interview.configuration.industry.name,
-        //     topics: interview.configuration.topics.map((t) => t.name),
-        //     yearsOfExperience: interview.configuration.yearsOfExperience,
-        //   });
-        //   return [res.announcement, res.question];
-        // }
+
         if (messages.length > 3) return getNextTechnicalQuestion();
         return getNextTechnicalQuestion();
       };

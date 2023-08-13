@@ -80,18 +80,16 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
           isCollapsed && shouldAllowExpanding ? "max-h-64 " : "max-h-auto"
         } overflow-hidden`}
       >
-        <div
+        {/* <div
           title="Satisfaction score"
           style={{ width: `${0}%` }}
           className={`absolute left-0 right-0 top-0 h-1 ${getSatisfactionClassNames(
             0
           )}`}
         ></div>
-        <SatisfactionPercentage percentage={69} />
+        <SatisfactionPercentage percentage={69} /> */}
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl text-accent-secondary">
-            Front-end position at Proxify.io
-          </h2>
+          <h2 className="text-2xl text-accent-secondary">{interview.title}</h2>
           <p
             className={`absolute -top-2 right-4 z-30 mt-2 rounded-b-md px-4  py-2 font-thin text-canvas-subtle ${getStatusColor(
               interview.status

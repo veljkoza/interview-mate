@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { ROUTES } from "~/consts/navigation";
 import { ChatDictaphone } from "~/domain/mock-interview/components/chat-dictaphone";
 import { useDictaphone } from "~/components/dictaphone";
+import TextareaAutosize from "react-textarea-autosize";
 
 export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
   const {
@@ -76,13 +77,14 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
           e.preventDefault();
           handleSubmit();
         }}
-        className="mt-auto flex w-full"
+        className="mt-auto flex w-full items-end gap-4"
       >
-        <Panel className="h-16 w-full p-0">
-          <input
+        <Panel className="min-h-16 w-full p-0 py-0">
+          <TextareaAutosize
+            maxRows={5}
             onChange={(e) => setMessageText(e.target.value)}
-            value={`${messageText} ${transcript}`}
-            className="h-full w-full bg-canvas-subtle px-5 py-2 text-muted-fg outline-none"
+            value={messageText + transcript}
+            className="h-full w-full bg-canvas-subtle py-3 text-muted-fg outline-none"
             placeholder="Type your message..."
           />
         </Panel>
@@ -101,7 +103,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
         />
 
         <button
-          className="flex h-16 w-16 items-center justify-center rounded-br-md rounded-tr-md border-2   border-accent-secondary text-accent-secondary"
+          className="relative flex min-h-[50px] min-w-[50px] items-center justify-center rounded-full bg-accent-secondary"
           disabled={shouldDisableForm}
         >
           <BsSend className="text-xl" />

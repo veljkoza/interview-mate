@@ -19,4 +19,5 @@ export const interviewDTO = {
   },
   status: true,
   questions: true,
+  title: true,
 };
