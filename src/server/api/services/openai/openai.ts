@@ -39,7 +39,8 @@ const getOpenAiResponse = async <R>(props: { prompt: string; fallback: R }) => {
     throw new Error(
       `Error while parsing: ${res || ""}, Error: ${
         error as string
-      } \n Prompt: ${props.prompt}`
+      } \n Prompt: ${props.prompt}
+      \n ${res || ""}`
     );
   }
 };
