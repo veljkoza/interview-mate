@@ -19,7 +19,7 @@ export const SelectOption = (props: {
     <button
       onClick={() => onClick?.()}
       disabled={isDisabled}
-      className={`border  px-10 py-5 ${VARIANTS[variant]} ${className}`}
+      className={`border  px-5 py-3 text-sm  md:px-10 md:py-5 md:text-base ${VARIANTS[variant]} ${className}`}
     >
       {text}
     </button>
@@ -33,7 +33,7 @@ const getRandomWidth = () => widths[Math.floor(Math.random() * widths.length)];
 export const SelectOptionGhost = () => {
   return (
     <button
-      className={`w-  border px-10 py-7 ${VARIANTS["inactive"]} relative animate-pulse`}
+      className={`border  px-5 py-5 text-sm  md:px-10 md:py-7 md:text-base ${VARIANTS["inactive"]} relative animate-pulse`}
     >
       <span
         className={` block h-1 ${getRandomWidth() || ""} bg-muted-fg`}

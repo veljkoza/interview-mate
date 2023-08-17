@@ -7,6 +7,7 @@ import { Heading } from "~/components/typography";
 import { useInterviewCreator } from "./context/interview-creator.context";
 import { Topic } from "@prisma/client";
 import { api } from "~/utils/api";
+import { Separator } from "~/components";
 
 export const TopicSelectStep = () => {
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
@@ -70,58 +71,25 @@ export const TopicSelectStep = () => {
     ));
   };
   return (
-    <Container>
-      <Heading className="mt-10">Select relevant topics.</Heading>
+    <Container className="flex h-full flex-col pb-4">
+      <Heading className="mt-5 md:mt-10">Select relevant topics.</Heading>
 
-      <Panel className="mt-14 flex h-[450px] flex-wrap gap-4 overflow-y-scroll">
+      <Panel className="mt-10 flex  h-[450px] flex-wrap gap-4 overflow-y-scroll lg:mt-14">
         {getBody()}
       </Panel>
+      <Separator className="h-8" />
       <div className="mt-8 flex items-center justify-between">
         <Button
           className="ml-auto"
-          onClick={() =>
-            dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" })
-          }
+          onClick={() => {
+            if (interviewCreatorState.interviewConfig.topics.length > 0) {
+              dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" });
+            }
+          }}
         >
           Next
         </Button>
       </div>
     </Container>
-  );
-};
-
-const IndustriesList: FC<{
-  onClick: (industry: Topic) => void;
-  activeItem: string;
-  industryId: string;
-}> = ({ activeItem, onClick, industryId }) => {
-  const { data: topics, isLoading } = api.topic.getTopicsByIndustryId.useQuery({
-    id: industryId,
-  });
-  const getBody = () => {
-    if (isLoading)
-      return Array(50)
-        .fill("123")
-        .map((el, i) => <SelectOption.Ghost key={i} />);
-    if (!topics)
-      return (
-        <Heading>
-          Ooops. It looks like we cant show you this data right now.
-        </Heading>
-      );
-    return topics.map((industry) => (
-      <FocusedOption
-        activeItem={activeItem}
-        onClick={() => onClick(industry)}
-        item={industry.name}
-        key={industry.id}
-      />
-    ));
-  };
-
-  return (
-    <Panel className="mt-14 flex h-[450px] flex-wrap gap-4 overflow-y-scroll">
-      {getBody()}
-    </Panel>
   );
 };

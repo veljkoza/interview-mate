@@ -8,6 +8,7 @@ import { INDUSTRIES } from "~/consts/industries";
 import { useInterviewCreator } from "./context/interview-creator.context";
 import { api } from "~/utils/api";
 import { Industry } from "@prisma/client";
+import { Separator } from "~/components";
 
 export const IndustrySelectStep = () => {
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
@@ -32,18 +33,27 @@ export const IndustrySelectStep = () => {
     interviewCreatorState.interviewConfig.industry.name;
 
   return (
-    <Container>
-      <Heading className="mt-10">Select your field of work.</Heading>
+    <Container className="flex h-full flex-col pb-4">
+      <Heading className="mt-5 md:mt-10">Select your field of work.</Heading>
 
       <IndustriesList
         activeIndustryName={activeIndustryName}
         onClick={onClick}
       />
-      <div className="mt-8 flex items-center justify-between">
+      <Separator className="h-8" />
+      <div className="mt-auto flex items-center justify-between md:mt-8">
         <Heading size={3} variant="secondary">
           {activeIndustryName}
         </Heading>
-        <Button onClick={() => goToNextStep()}>Next</Button>
+        <Button
+          onClick={() => {
+            if (interviewCreatorState.interviewConfig.industry.name) {
+              goToNextStep();
+            }
+          }}
+        >
+          Next
+        </Button>
       </div>
     </Container>
   );
@@ -77,7 +87,7 @@ const IndustriesList: FC<{
   };
 
   return (
-    <Panel className="mt-14 flex h-[450px] flex-wrap gap-4 overflow-y-scroll">
+    <Panel className="mt-10 flex  h-[450px] flex-wrap gap-4 overflow-y-scroll lg:mt-14">
       {getBody()}
     </Panel>
   );

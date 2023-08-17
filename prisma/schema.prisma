@@ -116,6 +116,8 @@ model InterviewConfiguration {
 
 model Interview {
     id                String                 @id @default(cuid())
+    createdAt         DateTime               @default(now())
+    updatedAt         DateTime               @updatedAt
     messages          Message[]
     status            InterviewStatus
     configuration     InterviewConfiguration @relation(fields: [configurationId], references: [id])

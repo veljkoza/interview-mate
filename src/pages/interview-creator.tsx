@@ -19,18 +19,19 @@ export const Circle = ({
   value: string;
   onClick?: () => void;
   variant?: "default" | "disabled";
+  className?: string;
 }) => {
-  const classNames = `flex h-16 w-16 items-center justify-center  rounded-full border-2  ${CIRCLE_VARIANTS[variant]}`;
+  const classNames = `flex h-12 w-12 md:h-16 md:w-16 items-center justify-center  rounded-full border-2  ${CIRCLE_VARIANTS[variant]}`;
   if (onClick) {
     return (
       <button className={classNames} onClick={onClick}>
-        <p className="text-2xl">{value}</p>
+        <p className="text-xl md:text-2xl">{value}</p>
       </button>
     );
   }
   return (
     <div className={classNames}>
-      <p className="text-2xl">{value}</p>
+      <p className="text-xl md:text-2xl">{value}</p>
     </div>
   );
 };
@@ -38,21 +39,27 @@ export const Circle = ({
 const MockInterviewBuilder: NextPage = () => {
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
     useInterviewCreator();
-  const { step } = interviewCreatorState;
+  const { step, stepsArray } = interviewCreatorState;
 
   const setStep = (newStep: number) =>
     dispatchInterviewCreatorUpdate({ type: "SET_STEP", payload: newStep });
 
   return (
-    <main className="pt-20">
+    <main className="fixed inset-0 flex  w-full flex-col overflow-y-auto pt-6 lg:pt-20">
       <>
-        <Container className="flex gap-8">
+        <Container className="flex gap-4 md:gap-8">
           {STEPS.map((_, i) => (
             <Circle
               key={i}
-              onClick={() => setStep(i)}
+              onClick={() => {
+                if (i < stepsArray.length) {
+                  setStep(i);
+                }
+              }}
               value={`${i + 1}`}
-              variant={i === step ? "default" : "disabled"}
+              variant={
+                i === step || i < stepsArray.length ? "default" : "disabled"
+              }
             />
           ))}
         </Container>

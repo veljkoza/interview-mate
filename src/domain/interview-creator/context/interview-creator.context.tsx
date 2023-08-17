@@ -13,7 +13,7 @@ import { STEPS_LENGTH } from "../consts/steps";
 const initialInterviewConfig: RouterInputs["interview"]["create"] = {
   topics: [],
   industry: {
-    id: "-1",
+    id: "",
     name: "",
   },
   yearsOfExperience: -1,
@@ -23,6 +23,7 @@ const initialInterviewConfig: RouterInputs["interview"]["create"] = {
 const DEFAULT_CONTEXT_VALUE = {
   step: 0,
   interviewConfig: initialInterviewConfig,
+  stepsArray: [] as string[],
 };
 
 type TInterviewCreatorValue = typeof DEFAULT_CONTEXT_VALUE;
@@ -61,10 +62,19 @@ const interviewCreatorReducer = (
     case "GO_TO_NEXT_STEP":
       const nextStep = prevState.step + 1;
       if (nextStep > STEPS_LENGTH) return prevState;
+      console.log({ nextStep }, prevState.stepsArray);
+      if (nextStep - 1 < prevState.stepsArray.length) {
+        return {
+          ...prevState,
+          step: nextStep,
+        };
+      }
       return {
         ...prevState,
         step: nextStep,
+        stepsArray: [...prevState.stepsArray, ""],
       };
+
     case "SET_STEP":
       if (typeof payload === "number" && payload < 0) return prevState;
       return {

@@ -23,14 +23,18 @@ export const YearsOfExperienceSelectStep = () => {
     });
 
   const onNextClick = () => {
-    dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" });
+    if (interviewCreatorState.interviewConfig.yearsOfExperience) {
+      dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" });
+    }
   };
 
   return (
-    <Container>
-      <Heading className="mt-10">Select target years of experience.</Heading>
+    <Container className="flex h-full flex-col pb-4">
+      <Heading className="mt-5 md:mt-10">
+        Select target years of experience.
+      </Heading>
 
-      <Panel className="mt-14 flex  items-center gap-4">
+      <Panel className="mt-10 grid grid-cols-3 items-center gap-4 md:mt-14  md:grid-cols-5 lg:flex">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((years) => (
           <FocusedOption
             key={years}
@@ -41,7 +45,7 @@ export const YearsOfExperienceSelectStep = () => {
           />
         ))}
       </Panel>
-      <div className="mt-8 flex items-center justify-between">
+      <div className="mt-auto flex items-center justify-between md:mt-8">
         {!!selectedYears && (
           <Heading size={3} variant="secondary">
             {getBottomText()}

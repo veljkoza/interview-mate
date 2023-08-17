@@ -26,10 +26,10 @@ export const NumberOfQuestionsSelectStep = () => {
     });
 
   return (
-    <Container>
-      <Heading className="mt-10">Select number of questions.</Heading>
+    <Container className="flex h-full flex-col pb-4">
+      <Heading className="mt-5 md:mt-10">Select number of questions.</Heading>
 
-      <Panel className="mt-14 flex  items-center gap-4">
+      <Panel className="mt-10 grid grid-cols-3 items-center gap-4 md:mt-14  md:grid-cols-5 lg:flex">
         {NO_OF_QUESTIONS.map((duration) => (
           <FocusedOption
             key={duration}
@@ -40,7 +40,7 @@ export const NumberOfQuestionsSelectStep = () => {
           />
         ))}
       </Panel>
-      <div className="mt-8 flex items-center justify-between">
+      <div className="mt-auto flex items-center justify-between md:mt-8">
         {!!selectedNumberOfQuestions && (
           <Heading size={3} variant="secondary">
             {getBottomText()}
@@ -48,9 +48,11 @@ export const NumberOfQuestionsSelectStep = () => {
         )}
         <Button
           className="ml-auto"
-          onClick={() =>
-            dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" })
-          }
+          onClick={() => {
+            if (interviewCreatorState.interviewConfig.numberOfQuestions) {
+              dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" });
+            }
+          }}
         >
           Next
         </Button>

@@ -227,6 +227,9 @@ export const interviewRouter = createTRPCRouter({
         userId: user.id,
       },
       select: interviewDTO,
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     return interviews;

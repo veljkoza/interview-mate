@@ -17,7 +17,7 @@ export const ChatBubble = ({
   message?: string;
   isTyping?: boolean;
 }) => {
-  const classNames = `rounded-lg ${BUBBLE_VARIANTS[sender]} w-auto  p-3`;
+  const classNames = `rounded-lg text-sm md:text-base ${BUBBLE_VARIANTS[sender]} w-auto  p-3`;
 
   if (isTyping)
     return (
@@ -62,7 +62,7 @@ export const Message = ({
         <Image
           src={logoSrc}
           alt="Interview mate portrait photo"
-          className="block h-14 w-14 rounded-full object-contain"
+          className="block h-10 w-10 rounded-full object-cover md:h-14 md:w-14"
           height={56}
           width={56}
         />
@@ -72,7 +72,7 @@ export const Message = ({
         <Image
           src={avatar}
           alt="User's portrait photo"
-          className="block h-14 w-14 rounded-full object-contain"
+          className="block h-10 w-10 rounded-full object-contain md:h-14 md:w-14"
           height={56}
           width={56}
         />

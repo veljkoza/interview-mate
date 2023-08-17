@@ -69,7 +69,7 @@ export default function UserPopover() {
               <Link href={ROUTES["my-interviews"]} className=" p-4 text-left">
                 My interviews
               </Link>
-              <button className=" p-4 text-left">My profile</button>
+              {/* <button className=" p-4 text-left">My profile</button> */}
               <button
                 className=" p-4 text-left"
                 onClick={() => {
@@ -93,7 +93,10 @@ export const AppHeader = () => (
       <Link href="/">
         <Logo className="h-16 w-16 cursor-pointer" />
       </Link>
-      <HamburgerMenu />
+      {/* <HamburgerMenu /> */}
+      <div className="text-accent-secondary lg:hidden">
+        <UserPopover />
+      </div>
       <nav className="hidden lg:block">
         <ul className="flex items-center gap-14 text-accent-secondary">
           {NAVIGATION.map((link) => (

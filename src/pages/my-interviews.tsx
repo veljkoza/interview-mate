@@ -2,13 +2,15 @@ import { InterviewStatus } from "@prisma/client";
 import type { NextPage } from "next";
 import { useRouter } from "next/navigation";
 
-import { useState } from "react";
+import { FC, useState } from "react";
 import { BsArrowDown } from "react-icons/bs";
+import { BackButton, Heading, PageHeader } from "~/components";
 import { AppHeader } from "~/components/app-header";
 import { Container } from "~/components/containers";
 import { BouncyLoader } from "~/components/loaders";
 import { Panel } from "~/components/panel";
 import { ROUTES } from "~/consts/navigation";
+import { useIsClient } from "~/hooks";
 import { RouterOutputs, api } from "~/utils/api";
 
 const interviewStatusColorMap: Record<InterviewStatus, string> = {
@@ -20,23 +22,27 @@ export type InterviewDTO =
   RouterOutputs["interview"]["getInterviewsForUser"][0];
 
 const MyInterviews: NextPage = () => {
-  const { data: interviews, isLoading } = api.interview.getInterviewsForUser.useQuery();
+  const { data: interviews, isLoading } =
+    api.interview.getInterviewsForUser.useQuery();
 
-  if(isLoading) return <BouncyLoader className=""/>
-  if (!interviews) return <div>No data</div>;
   return (
-    <main className="relative">
+    <main className="relative pb-10">
       <AppHeader />
       <div className="relative flex flex-col pt-36">
         <Container>
-          <h1 className="text-3xl leading-normal text-white lg:text-5xl">
-            My interviews
-          </h1>
-          <div className="mt-16 grid grid-cols-2 gap-5">
-            {interviews.map((interview) => (
-              <InterviewCard interview={interview} key={interview.id} />
-            ))}
-          </div>
+          <PageHeader
+            backButton={<BackButton />}
+            title={
+              <h1 className="text-3xl leading-normal text-white lg:text-5xl">
+                My interviews
+              </h1>
+            }
+          />
+          <div className="h-10"></div>
+          <MyInterviewsPageContent
+            interviews={interviews}
+            isLoading={isLoading}
+          />
         </Container>
       </div>
     </main>
@@ -91,18 +97,20 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
         ></div>
         <SatisfactionPercentage percentage={69} /> */}
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl text-accent-secondary">{interview.title}</h2>
+          <h2 className=" text-lg text-accent-secondary md:text-2xl">
+            {interview.title}
+          </h2>
           <p
-            className={`absolute -top-2 right-4 z-30 mt-2 rounded-b-md px-4  py-2 font-thin text-canvas-subtle ${getStatusColor(
+            className={`absolute -top-2 right-4 z-30 mt-2 rounded-b-md px-4  py-2 text-sm font-thin text-canvas-subtle md:text-base ${getStatusColor(
               interview.status
             )}`}
           >
-            {interview.status}
+            <span className="hidden md:block">{interview.status}</span>
           </p>
         </div>
 
         <div>
-          <p className="mt-2 font-body text-lg font-thin text-white">
+          <p className="mt-2 font-body font-thin text-white md:text-lg">
             {configuration.industry.name}, {configuration.yearsOfExperience}{" "}
             years of experience
           </p>
@@ -111,7 +119,7 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
             {configuration.topics.map((topic) => (
               <p
                 key={topic.name}
-                className="inline-block border border-muted-fg p-2 text-muted-fg"
+                className="inline-block border border-muted-fg p-2 text-xs text-muted-fg md:text-base"
               >
                 {topic.name}
               </p>
@@ -133,6 +141,36 @@ const InterviewCard = ({ interview }: { interview: InterviewDTO }) => {
           </div>
         )}
       </Panel>
+    </div>
+  );
+};
+
+interface MyInterviewsPageContent {
+  interviews?: InterviewDTO[];
+  isLoading?: boolean;
+}
+
+const MyInterviewsPageContent: FC<MyInterviewsPageContent> = ({
+  interviews,
+  isLoading,
+}) => {
+  if (isLoading)
+    return (
+      <div className="relative pt-4">
+        <BouncyLoader className="relative" />
+      </div>
+    );
+  if (!interviews || !interviews.length)
+    return (
+      <Panel className="grid items-center justify-center">
+        <Heading size={4}>No data</Heading>
+      </Panel>
+    );
+  return (
+    <div className="grid gap-5 md:mt-14 md:grid-cols-2 lg:mt-16">
+      {interviews.map((interview) => (
+        <InterviewCard interview={interview} key={interview.id} />
+      ))}
     </div>
   );
 };

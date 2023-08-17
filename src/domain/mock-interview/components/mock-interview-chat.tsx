@@ -15,6 +15,7 @@ import { ROUTES } from "~/consts/navigation";
 import { ChatDictaphone } from "~/domain/mock-interview/components/chat-dictaphone";
 import { useDictaphone } from "~/components/dictaphone";
 import TextareaAutosize from "react-textarea-autosize";
+import { BackButton, Heading } from "~/components";
 
 export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
   const {
@@ -77,7 +78,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
           e.preventDefault();
           handleSubmit();
         }}
-        className="mt-auto flex w-full items-end gap-4"
+        className="mt-auto flex w-full items-end gap-4 pt-2"
       >
         <Panel className="min-h-16 w-full p-0 py-0">
           <TextareaAutosize
@@ -113,15 +114,21 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
   };
 
   return (
-    <div className="relative flex h-screen flex-col pt-24">
-      <Container className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between py-8">
-        <button className="ml-auto">
+    <div className="fixed inset-0 flex flex-col pt-11 md:pt-24">
+      <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-canvas-subtle">
+        <Container className="flex items-center gap-4 py-3">
+          {/* <button className="ml-auto">
           <RiMenu4Fill className="ml-auto text-4xl text-accent-secondary " />
-        </button>
-      </Container>
+        </button> */}
+          <BackButton />{" "}
+          <Heading variant="secondary" size={4}>
+            {interview.title}
+          </Heading>
+        </Container>
+      </div>
       <Container className="relative mx-auto flex  h-full flex-1 flex-col py-5">
         <div
-          className="flex flex-1 flex-col gap-5 overflow-y-scroll p-5"
+          className="flex flex-1 flex-col gap-5 overflow-y-scroll py-5"
           ref={messagesContainerRef}
         >
           {interview.messages.map((message) => (
