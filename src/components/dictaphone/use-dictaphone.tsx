@@ -46,7 +46,7 @@ export const useDictaphone = (props: UseDictaphoneProps) => {
     speechRecognition
       ?.startListening(params)
       .then((res) => {
-        console.log({ res });
+        console.log("speech recognition loaded");
       })
       .catch((err) => {
         console.warn(err);
@@ -57,7 +57,7 @@ export const useDictaphone = (props: UseDictaphoneProps) => {
 
   const stop = () =>
     speechRecognition?.abortListening().then((res) => {
-      console.log({ res }, "stop");
+      console.log("speech recognition stoped");
     });
 
   return {

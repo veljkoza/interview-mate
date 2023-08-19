@@ -99,11 +99,11 @@ export const AppHeader = () => (
       </div>
       <nav className="hidden lg:block">
         <ul className="flex items-center gap-14 text-accent-secondary">
-          {NAVIGATION.map((link) => (
+          {/* {NAVIGATION.map((link) => (
             <li key={link.text}>
               <Link href={link.to}>{link.text}</Link>
             </li>
-          ))}
+          ))} */}
           <Button href={ROUTES["interview-creator"]} variant="mini">
             Have a mock interview
           </Button>

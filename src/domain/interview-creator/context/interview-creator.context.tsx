@@ -62,7 +62,6 @@ const interviewCreatorReducer = (
     case "GO_TO_NEXT_STEP":
       const nextStep = prevState.step + 1;
       if (nextStep > STEPS_LENGTH) return prevState;
-      console.log({ nextStep }, prevState.stepsArray);
       if (nextStep - 1 < prevState.stepsArray.length) {
         return {
           ...prevState,

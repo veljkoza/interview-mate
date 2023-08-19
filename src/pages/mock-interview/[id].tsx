@@ -1,26 +1,13 @@
 import type { GetStaticProps, InferGetStaticPropsType, NextPage } from "next";
-import { Container } from "~/components/containers";
 
-import { useState, type PropsWithChildren } from "react";
-import { Panel } from "~/components/panel";
-import { RiMenu4Fill } from "react-icons/ri";
-import { BsSend } from "react-icons/bs";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
 import SuperJSON from "superjson";
-import { type RouterOutputs, api } from "~/utils/api";
-import type { SENDER } from "@prisma/client";
-import { useInterview } from "~/domain/mock-interview/hooks/useInterview";
-import { Button } from "~/components/buttons";
-import { Message } from "~/domain/mock-interview/components/chat";
-import { useClerk } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { ROUTES } from "~/consts/navigation";
-import { ChatDictaphone } from "~/domain/mock-interview/components/chat-dictaphone";
-import { FaSpinner } from "react-icons/fa";
-import { useDictaphone } from "~/components/dictaphone";
+import { type RouterOutputs } from "~/utils/api";
 import dynamic from "next/dynamic";
+import { BouncyLoader } from "~/components";
+import Head from "next/head";
 
 const MockInterviewChat = dynamic(
   () =>
@@ -29,7 +16,7 @@ const MockInterviewChat = dynamic(
     ),
   {
     ssr: false,
-    loading: () => <p>Loading...</p>,
+    loading: () => <BouncyLoader />,
   }
 );
 
@@ -37,7 +24,14 @@ export type TInterviewDTO = RouterOutputs["interview"]["create"];
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
 const MockInterviewPage: NextPage<PageProps> = ({ id }) => {
-  return <MockInterviewChat id={id} />;
+  return (
+    <>
+      <Head>
+        <title>Mock Interview | Interview Mate</title>
+      </Head>
+      <MockInterviewChat id={id} />
+    </>
+  );
 };
 
 export const getStaticProps: GetStaticProps<{ id: string }> = async (

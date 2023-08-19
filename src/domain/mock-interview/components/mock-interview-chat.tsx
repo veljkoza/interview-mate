@@ -116,7 +116,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
   return (
     <div className="fixed inset-0 flex flex-col pt-11 md:pt-24">
       <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-canvas-subtle">
-        <Container className="flex items-center gap-4 py-3">
+        <Container className="flex items-center gap-4  py-3">
           {/* <button className="ml-auto">
           <RiMenu4Fill className="ml-auto text-4xl text-accent-secondary " />
         </button> */}
@@ -126,9 +126,9 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
           </Heading>
         </Container>
       </div>
-      <Container className="relative mx-auto flex  h-full flex-1 flex-col py-5">
+      <Container className="relative mx-auto flex  h-full flex-1 flex-col  py-5">
         <div
-          className="flex flex-1 flex-col gap-5 overflow-y-scroll py-5"
+          className="flex flex-1 flex-col gap-5 overflow-y-scroll px-2 py-5"
           ref={messagesContainerRef}
         >
           {interview.messages.map((message) => (

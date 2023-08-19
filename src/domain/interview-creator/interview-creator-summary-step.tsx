@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { Button } from "~/components/buttons";
 import { Container } from "~/components/containers";
 import { SelectOption } from "~/components/select-option";
@@ -32,16 +32,25 @@ export const InterviewCreatorSummaryStep = () => {
     yearsOfExperience,
   } = interviewConfig;
   const router = useRouter();
+
+  const [isLoadingRoute, setIsLoadingRoute] = useState(false);
+
   const { isLoading, mutate } = api.interview.create.useMutation({
     onSuccess: (res) => {
       router.replace(`${ROUTES["mock-interview"]}/${res.id}`);
+      setIsLoadingRoute(true);
     },
     onError: (err) => console.log(err),
   });
 
+  useEffect(() => {
+    return () => setIsLoadingRoute(false);
+  }, []);
+
   const handleSubmit = () => mutate(interviewConfig);
 
-  if (isLoading) return <BouncyLoader className="fixed inset-0" />;
+  if (isLoading || isLoadingRoute)
+    return <BouncyLoader className="fixed inset-0" />;
 
   return (
     <Container>

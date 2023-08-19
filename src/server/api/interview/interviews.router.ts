@@ -82,7 +82,6 @@ export const interviewRouter = createTRPCRouter({
         topics: input.topics.map((topic) => topic.name),
         questionTypes: ["behavioural", "situational", "technical"],
       }).then(async (res) => {
-        console.log({ res }, "hazbula");
         await ctx.prisma.interview.update({
           where: { id: interview.id },
           data: {
@@ -117,8 +116,6 @@ export const interviewRouter = createTRPCRouter({
         id: input.id,
       });
 
-      console.log({ interview });
-
       // 1.
       // get feedback and next question from openAi
       MockInterviewAiService.getFeedbackForAnswerV2({
@@ -131,8 +128,6 @@ export const interviewRouter = createTRPCRouter({
             ...aiResponse,
           },
         });
-
-        console.log({ aiResponse });
 
         await ctx.prisma.interviewResultUnit.create({
           data: {

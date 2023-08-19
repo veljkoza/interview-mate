@@ -1,6 +1,7 @@
 import { InterviewStatus } from "@prisma/client";
 import type { NextPage } from "next";
 import { useRouter } from "next/navigation";
+import Head from "next/head";
 
 import { FC, useState } from "react";
 import { BsArrowDown } from "react-icons/bs";
@@ -26,26 +27,31 @@ const MyInterviews: NextPage = () => {
     api.interview.getInterviewsForUser.useQuery();
 
   return (
-    <main className="relative pb-10">
-      <AppHeader />
-      <div className="relative flex flex-col pt-36">
-        <Container>
-          <PageHeader
-            backButton={<BackButton />}
-            title={
-              <h1 className="text-3xl leading-normal text-white lg:text-5xl">
-                My interviews
-              </h1>
-            }
-          />
-          <div className="h-10"></div>
-          <MyInterviewsPageContent
-            interviews={interviews}
-            isLoading={isLoading}
-          />
-        </Container>
-      </div>
-    </main>
+    <>
+      <Head>
+        <title>My Interviews | Interview Mate</title>
+      </Head>
+      <main className="relative pb-10">
+        <AppHeader />
+        <div className="relative flex flex-col pt-36">
+          <Container>
+            <PageHeader
+              backButton={<BackButton />}
+              title={
+                <h1 className="text-3xl leading-normal text-white lg:text-5xl">
+                  My interviews
+                </h1>
+              }
+            />
+            <div className="h-10"></div>
+            <MyInterviewsPageContent
+              interviews={interviews}
+              isLoading={isLoading}
+            />
+          </Container>
+        </div>
+      </main>
+    </>
   );
 };
 

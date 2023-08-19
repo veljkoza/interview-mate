@@ -1,4 +1,7 @@
 import type { NextPage } from "next";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { IoMdClose } from "react-icons/io";
 import { Container } from "~/components/containers";
 
 import { STEPS } from "~/domain/interview-creator/consts/steps";
@@ -43,29 +46,42 @@ const MockInterviewBuilder: NextPage = () => {
 
   const setStep = (newStep: number) =>
     dispatchInterviewCreatorUpdate({ type: "SET_STEP", payload: newStep });
-
+  const router = useRouter();
   return (
-    <main className="fixed inset-0 flex  w-full flex-col overflow-y-auto pt-6 lg:pt-20">
-      <>
-        <Container className="flex gap-4 md:gap-8">
-          {STEPS.map((_, i) => (
-            <Circle
-              key={i}
-              onClick={() => {
-                if (i < stepsArray.length) {
-                  setStep(i);
+    <>
+      <Head>
+        <title>Interview Creator | Interview Mate</title>
+      </Head>
+      <main className="fixed inset-0 flex  w-full flex-col overflow-y-auto pt-6 lg:pt-20">
+        <>
+          <Container className="flex gap-4 md:gap-8">
+            {STEPS.map((_, i) => (
+              <Circle
+                key={i}
+                onClick={() => {
+                  if (i < stepsArray.length) {
+                    setStep(i);
+                  }
+                }}
+                value={`${i + 1}`}
+                variant={
+                  i === step || i < stepsArray.length ? "default" : "disabled"
                 }
+              />
+            ))}
+            <button
+              className="ml-auto text-4xl text-muted-default"
+              onClick={() => {
+                void router.replace(`/`);
               }}
-              value={`${i + 1}`}
-              variant={
-                i === step || i < stepsArray.length ? "default" : "disabled"
-              }
-            />
-          ))}
-        </Container>
-        {STEPS[step]}
-      </>
-    </main>
+            >
+              <IoMdClose />
+            </button>
+          </Container>
+          {STEPS[step]}
+        </>
+      </main>
+    </>
   );
 };
 

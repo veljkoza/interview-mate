@@ -9,6 +9,8 @@ import { Container } from "~/components/containers";
 import { Button } from "~/components/buttons";
 import { Panel } from "~/components/panel";
 import { ROUTES } from "~/consts/navigation";
+import { HowItWorks } from "~/domain/landing-page/how-it-works";
+import Head from "next/head";
 
 const FEATURES = [
   {
@@ -30,6 +32,9 @@ const FEATURES = [
 const Home: NextPage = () => {
   return (
     <>
+      <Head>
+        <title>Home | Interview Mate</title>
+      </Head>
       <main className="relative">
         <AppHeader />
         <div className="relative flex flex-col pt-20">
@@ -63,7 +68,8 @@ const Home: NextPage = () => {
               className="-mr-96 hidden w-[600px] lg:block"
             />
           </Container>
-          <Container tag="section">
+          <HowItWorks />
+          {/* <Container tag="section">
             <h2 className="text-3xl leading-normal text-white lg:text-5xl">
               Features
             </h2>
@@ -85,7 +91,7 @@ const Home: NextPage = () => {
                 </div>
               ))}
             </div>
-          </Container>
+          </Container> */}
           <section className="">
             <Container className="flex flex-col items-center justify-center">
               <div className="mx-auto my-24 h-0.5 w-2/3 bg-accent-secondary"></div>

@@ -16,12 +16,10 @@ export const TopicSelectStep = () => {
     interviewCreatorState.interviewConfig.topics
   );
   const handleTopicClick = (clickedTopic: Topic) => {
-    console.log(clickedTopic);
     const foundIndex = selectedTopics.findIndex(
       (topic) => topic.id === clickedTopic.id
     );
     if (foundIndex >= 0) {
-      console.log({ foundIndex }, "test");
       const temp = [...selectedTopics];
       temp.splice(foundIndex, 1);
       setSelectedTopics(temp);
@@ -42,9 +40,7 @@ export const TopicSelectStep = () => {
         type: "SET_TOPICS",
         payload: selectedTopics,
       });
-  }, [selectedTopics]);
-
-  console.log({ selectedTopics });
+  }, [selectedTopics.length]);
 
   const { data: topics, isLoading } = api.topic.getTopicsByIndustryId.useQuery({
     id: interviewCreatorState.interviewConfig.industry.id,
@@ -82,7 +78,7 @@ export const TopicSelectStep = () => {
         <Button
           className="ml-auto"
           onClick={() => {
-            if (interviewCreatorState.interviewConfig.topics.length > 0) {
+            if (selectedTopics.length > 0) {
               dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" });
             }
           }}
