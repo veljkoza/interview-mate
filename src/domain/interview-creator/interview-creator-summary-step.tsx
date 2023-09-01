@@ -25,6 +25,7 @@ export const InterviewCreatorSummaryStep = () => {
   const {
     interviewCreatorState: { interviewConfig },
   } = useInterviewCreator();
+  const [interviewId, setInterviewId] = useState<string>();
   const {
     industry: { name },
     topics,
@@ -35,9 +36,23 @@ export const InterviewCreatorSummaryStep = () => {
 
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
 
+  api.interview.questionsReceivedPoll.useQuery(
+    { id: interviewId! },
+    {
+      enabled: !!interviewId,
+      onSuccess: (res) => {
+        if (res.status === "QUESTIONS_RECEIVED") {
+          router.replace(`${ROUTES["mock-interview"]}/${res.id}`);
+        }
+      },
+      refetchInterval: 1000,
+    }
+  );
+
   const { isLoading, mutate } = api.interview.create.useMutation({
     onSuccess: (res) => {
-      router.replace(`${ROUTES["mock-interview"]}/${res.id}`);
+      // router.replace(`${ROUTES["mock-interview"]}/${res.id}`);
+      setInterviewId(res.id);
       setIsLoadingRoute(true);
     },
     onError: (err) => console.log(err),
@@ -50,7 +65,12 @@ export const InterviewCreatorSummaryStep = () => {
   const handleSubmit = () => mutate(interviewConfig);
 
   if (isLoading || isLoadingRoute)
-    return <BouncyLoader className="fixed inset-0" />;
+    return (
+      <BouncyLoader
+        className="fixed inset-0"
+        messages={BouncyLoader.questionsLoadingMessages}
+      />
+    );
 
   return (
     <Container>

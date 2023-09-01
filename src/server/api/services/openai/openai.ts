@@ -28,6 +28,7 @@ export const createOpenAICompletion = async ({
     max_tokens: 3000,
     temperature: 0.55,
   });
+
   return res.data.choices[0]?.message?.content.trim();
 };
 

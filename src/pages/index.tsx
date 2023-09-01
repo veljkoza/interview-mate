@@ -11,6 +11,7 @@ import { Panel } from "~/components/panel";
 import { ROUTES } from "~/consts/navigation";
 import { HowItWorks } from "~/domain/landing-page/how-it-works";
 import Head from "next/head";
+import { BouncyLoader } from "~/components";
 
 const FEATURES = [
   {

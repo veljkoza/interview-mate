@@ -82,6 +82,7 @@ export const interviewRouter = createTRPCRouter({
         topics: input.topics.map((topic) => topic.name),
         questionTypes: ["behavioural", "situational", "technical"],
       }).then(async (res) => {
+        console.log({ res }, "questionsx", { time: performance.now() });
         await ctx.prisma.interview.update({
           where: { id: interview.id },
           data: {
@@ -321,5 +322,22 @@ export const interviewRouter = createTRPCRouter({
       const filtered = result.filter(Boolean);
 
       return filtered;
+    }),
+
+  questionsReceivedPoll: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const interview = await InterviewRepository.getInterviewOrThrow(ctx, {
+        id: input.id,
+      });
+      const status =
+        (interview.questions as string[]).length > 0
+          ? "QUESTIONS_RECEIVED"
+          : "QUESTIONS_NOT_RECEIVED";
+
+      return {
+        id: interview.id,
+        status,
+      };
     }),
 });

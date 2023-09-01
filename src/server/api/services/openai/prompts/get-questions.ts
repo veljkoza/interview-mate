@@ -35,29 +35,26 @@ export type GetQuestionsPromptV2Response = {
   }[];
 };
 
-export const getQuestionsPromptV2 = (
-  params: GetQuestionsPromptV2Params
-) => `As an AI, you need to generate a structured interview for a ${
-  params.difficulty
-} ${
-  params.role
-} software engineer role. The difficulty level for this role is ${
-  params.difficulty
-}. The technologies that may be included are ${params.topics.toString()}. The interview should include:
+export const getQuestionsPromptV2 = ({
+  difficulty,
+  role,
+  topics,
+  questionTypes,
+  domain,
+  numberOfQuestions,
+}: GetQuestionsPromptV2Params) => `As an AI, you need to generate a structured interview for a ${difficulty} ${role} software engineer role. The difficulty level for this role is ${difficulty}. The technologies that may be included are ${topics.toString()}. The interview should include:
+
+You MUST respond completely in JSON!
 
 ${
-  (params.questionTypes.find((type) => type === "technical") &&
+  (questionTypes.find((type) => type === "technical") &&
     `Technical Questions:
-  Please generate a series of technical questions at the ${
-    params.difficulty
-  } level that test the candidate's understanding of software engineering principles, their expertise in the ${
-      params.role
-    } role, their in-depth familiarity with ${params.topics.toString()}, their understanding of recent trends and innovations in these technologies, and their problem-solving abilities.`) ||
+  Please generate a series of technical questions at the ${difficulty} level that test the candidate's understanding of software engineering principles, their expertise in the ${role} role, their in-depth familiarity with ${topics.toString()}, their understanding of recent trends and innovations in these technologies, and their problem-solving abilities.`) ||
   ""
 }
 
 ${
-  (params.questionTypes.find((type) => type === "behavioural") &&
+  (questionTypes.find((type) => type === "behavioural") &&
     `Behavioural Questions:
   Please generate a series of behavioural questions that assess the candidate's leadership skills, team collaboration, adaptability, conflict resolution abilities, alignment with [company's core values], and general work ethics.
   `) ||
@@ -65,24 +62,22 @@ ${
 }
 
 ${
-  (params.questionTypes.find((type) => type === "situational") &&
+  (questionTypes.find((type) => type === "situational") &&
     `Situational Questions:
-  Please generate a series of situational questions that assess how the candidate might handle specific scenarios they could encounter in a ${params.difficulty} ${params.role} software engineer role. These should involve problem-solving, working under pressure, and handling deadlines.  
+  Please generate a series of situational questions that assess how the candidate might handle specific scenarios they could encounter in a ${difficulty} ${role} software engineer role. These should involve problem-solving, working under pressure, and handling deadlines.  
   `) ||
   ""
 }
 
 ${
-  (params.domain &&
-    `Domain-specific (${params.domain}) Questions:
-  Please generate a series of domain-specific questions that assess the candidate's understanding of ${params.domain} business models, their experience with ${params.domain} platforms, their knowledge of ${params.domain} trends, and their understanding of the unique challenges and opportunities in the ${params.domain} industry.
+  (domain &&
+    `Domain-specific (${domain}) Questions:
+  Please generate a series of domain-specific questions that assess the candidate's understanding of ${domain} business models, their experience with ${domain} platforms, their knowledge of ${domain} trends, and their understanding of the unique challenges and opportunities in the ${domain} industry.
   `) ||
   ""
 }
 
-The questions should be arranged in a way that makes sense for a holistic interview, transitioning smoothly from one topic to another. The aim is to comprehensively evaluate a software engineer candidate's suitability for the role. Please generate ${
-  params.numberOfQuestions
-} number of questions in total.
+The questions should be arranged in a way that makes sense for a holistic interview, transitioning smoothly from one topic to another. The aim is to comprehensively evaluate a software engineer candidate's suitability for the role. Please generate ${numberOfQuestions} number of questions in total.
 
 The output should be provided in JSON format and contain 'questions' proeprty which is structured as an array of question objects. Each object should have a 'type' field indicating whether it's a technical, behavioural, situational, or domain-specific question, and a 'question' field containing the actual question.
 
