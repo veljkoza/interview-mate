@@ -10,9 +10,11 @@ import { RiLoaderFill, RiUser4Fill } from "react-icons/ri";
 import { Fragment } from "react";
 import Image from "next/image";
 import { SignInButton, UserButton, useClerk } from "@clerk/nextjs";
+import { api } from "~/utils/api";
 
 export default function UserPopover() {
-  const { user, loaded, signOut } = useClerk();
+  const { loaded, signOut } = useClerk();
+  const { data: user } = api.user.getCurrentUser.useQuery();
 
   if (!user) return <SignInButton />;
   // const { data: session, status } = useSession();
@@ -24,7 +26,7 @@ export default function UserPopover() {
     );
 
   const getImg = () => {
-    const userImg = user?.profileImageUrl;
+    const userImg = user?.image;
     if (userImg) {
       return (
         <Image
@@ -66,6 +68,9 @@ export default function UserPopover() {
             leaveTo="opacity-0 translate-y-1"
           >
             <Popover.Panel className="absolute left-1/2 z-10 mt-3 flex -translate-x-1/2 transform  flex-col whitespace-nowrap rounded-lg border-2 border-accent-secondary bg-background">
+              <p className="p-4 text-yellow-500">
+                Questions left: {user.numberOfQuestionsAvailable}
+              </p>
               <Link href={ROUTES["my-interviews"]} className=" p-4 text-left">
                 My interviews
               </Link>

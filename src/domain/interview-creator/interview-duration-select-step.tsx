@@ -5,10 +5,13 @@ import { Panel } from "~/components/panel";
 import { FocusedOption } from "~/components/select-option";
 import { Heading } from "~/components/typography";
 import { useInterviewCreator } from "./context/interview-creator.context";
+import { api } from "~/utils/api";
+import { BouncyLoader } from "~/components";
 
 const NO_OF_QUESTIONS = [5, 10, 20, 25, 30];
 
 export const NumberOfQuestionsSelectStep = () => {
+  const { data: user, isLoading } = api.user.getCurrentUser.useQuery();
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
     useInterviewCreator();
   const selectedNumberOfQuestions =
@@ -24,21 +27,26 @@ export const NumberOfQuestionsSelectStep = () => {
       type: "SET_NUMBER_OF_QUESTIONS",
       payload: duration,
     });
-
+  console.log({ user });
+  if (!user) return <div>Uip!</div>;
+  if (isLoading) return <BouncyLoader />;
   return (
     <Container className="flex h-full flex-col pb-4">
       <Heading className="mt-5 md:mt-10">Select number of questions.</Heading>
 
       <Panel className="mt-10 grid grid-cols-3 items-center gap-4 md:mt-14  md:grid-cols-5 lg:flex">
-        {NO_OF_QUESTIONS.map((duration) => (
-          <FocusedOption
-            key={duration}
-            className="grow"
-            onClick={() => handleOptionClick(duration)}
-            item={duration}
-            activeItem={selectedNumberOfQuestions}
-          />
-        ))}
+        {NO_OF_QUESTIONS.map((duration) => {
+          if (duration <= user.numberOfQuestionsAvailable)
+            return (
+              <FocusedOption
+                key={duration}
+                className="grow"
+                onClick={() => handleOptionClick(duration)}
+                item={duration}
+                activeItem={selectedNumberOfQuestions}
+              />
+            );
+        })}
       </Panel>
       <div className="mt-auto flex items-center justify-between md:mt-8">
         {!!selectedNumberOfQuestions && (
