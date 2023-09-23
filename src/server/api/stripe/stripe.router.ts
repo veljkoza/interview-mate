@@ -17,10 +17,11 @@ export const stripeRouter = createTRPCRouter({
             description: z.string(),
           })
         ),
+        originUrl: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const origin = ctx.req.headers.origin || "";
+      const origin = input.originUrl;
       const items: Stripe.Checkout.SessionCreateParams.LineItem[] =
         input.items.map((item) => ({
           quantity: 1,

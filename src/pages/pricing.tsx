@@ -79,6 +79,7 @@ const Pricing: NextPage = () => {
             description: bundle.description,
           },
         ],
+        originUrl: window.origin,
       },
       {
         onSuccess: (redirectUrl) => {
