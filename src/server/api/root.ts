@@ -5,6 +5,8 @@ import { industryRouter } from "./routers/industries";
 import { interviewRouter } from "./interview/interviews.router";
 import { interviewResultRouter } from "./interview-result/interview-result.router";
 import { azureRouter } from "./azure/azure.router";
+import { userRouter } from "./user/user.router";
+import { stripeRouter } from "./stripe/stripe.router";
 
 /**
  * This is the primary router for your server.
@@ -18,6 +20,8 @@ export const appRouter = createTRPCRouter({
   interview: interviewRouter,
   interviewResult: interviewResultRouter,
   azure: azureRouter,
+  user: userRouter,
+  stripe: stripeRouter,
 });
 
 // export type definition of API

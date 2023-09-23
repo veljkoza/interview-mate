@@ -8,6 +8,7 @@ import { clerkClient } from "@clerk/nextjs";
 import { InterviewResultRepository } from "../interview-result/interview-result.repository";
 import { InterviewRepository } from "./interview.repository";
 import { MockInterviewAiService } from "../services/openai/openai";
+import { UserRepository } from "../user/user.repository";
 
 const IndustrySchema = z.object({
   id: z.string(),
@@ -33,6 +34,12 @@ export const interviewRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const user = await UserRepository.get(ctx.currentUserId);
+      if (input.numberOfQuestions > user.numberOfQuestionsAvailable)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Insuficient number of questions available",
+        });
       const interviewConfiguration =
         await ctx.prisma.interviewConfiguration.create({
           data: {
@@ -68,8 +75,12 @@ export const interviewRouter = createTRPCRouter({
               data: [],
             },
           },
-          userId: ctx.currentUserId,
           status: "ACTIVE",
+          User: {
+            connect: {
+              id: ctx.currentUserId,
+            },
+          },
         },
         select: interviewDTO,
       });
@@ -89,6 +100,12 @@ export const interviewRouter = createTRPCRouter({
             questions: res.questions.map((question) => question.question),
           },
         });
+
+        // decrement available questions for user
+        UserRepository.decrementQuestionsForUsers(
+          ctx.currentUserId,
+          res.questions.length
+        );
       });
 
       // create empty interviewResult
