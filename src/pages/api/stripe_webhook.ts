@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { NextApiRequest, NextApiResponse } from "next";
 import { env } from "~/env.mjs";
 import Stripe from "stripe";
@@ -38,16 +41,17 @@ export default async function handler(
       console.log(event.type, event.data);
       res.status(200).json(event);
     } catch (err) {
-      console.log(`❌ Error message: ${err.message}`);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
+      const error = err as any;
+      return res.status(400).send(`Webhook Error: ${error.message || ""}`);
     }
-    const userId = event.data.object.client_reference_id;
-    const questions = +event.data.object.metadata.questions;
+    const eventAny = event as unknown as any;
+    const userId = eventAny.data.object.client_reference_id;
+    const questions = +eventAny.data.object.metadata.questions;
 
     switch (event.type) {
       case "checkout.session.completed":
         const res = await UserRepository.incrementQuestionsForUsers(
-          userId,
+          userId as string,
           questions
         );
         console.log(res, "hazbula");
