@@ -13,8 +13,10 @@ import { SignInButton, UserButton, useClerk } from "@clerk/nextjs";
 import { api } from "~/utils/api";
 
 export default function UserPopover() {
-  const { loaded, signOut } = useClerk();
-  const { data: user } = api.user.getCurrentUser.useQuery();
+  const { loaded, signOut, user: clerkUser } = useClerk();
+  const { data: user, remove } = api.user.getCurrentUser.useQuery(undefined, {
+    enabled: !!clerkUser,
+  });
 
   if (!user) return <SignInButton />;
   // const { data: session, status } = useSession();
@@ -79,6 +81,7 @@ export default function UserPopover() {
                 className=" p-4 text-left"
                 onClick={() => {
                   void signOut();
+                  remove();
                   close();
                 }}
               >
@@ -99,6 +102,13 @@ export const AppHeader = () => (
         <Logo className="h-16 w-16 cursor-pointer" />
       </Link>
       {/* <HamburgerMenu /> */}
+      <Link
+        href={ROUTES["pricing"]}
+        className=" ml-auto mr-10 text-accent-secondary lg:hidden"
+      >
+        Pricing
+      </Link>
+
       <div className="text-accent-secondary lg:hidden">
         <UserPopover />
       </div>

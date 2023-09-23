@@ -15,6 +15,9 @@ const server = z.object({
   AZURE_SPEECH_RECOGNITION_SERVICE_KEY: z.string(),
   AZURE_COGNITIVE_TOKEN_ENDPOINT: z.string(),
   WEBHOOK_SECRET: z.string(),
+  STRIPE_SECRET_KEY: z.string(),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string(),
+  STRIPE_WEBHOOK_SECRET: z.string(),
 });
 
 /**
@@ -23,6 +26,7 @@ const server = z.object({
  */
 const client = z.object({
   // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string(),
 });
 
 /**
@@ -41,6 +45,10 @@ const processEnv = {
     process.env.AZURE_SPEECH_RECOGNITION_SERVICE_KEY,
   AZURE_COGNITIVE_TOKEN_ENDPOINT: process.env.AZURE_COGNITIVE_TOKEN_ENDPOINT,
   WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 

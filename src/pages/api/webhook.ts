@@ -52,7 +52,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const payload = req.body as unknown as User;
-  console.log(payload, "uip!!!");
   const headers = req.headers;
   const user = payload.data;
   const type = payload.type;

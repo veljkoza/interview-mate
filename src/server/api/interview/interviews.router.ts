@@ -100,6 +100,12 @@ export const interviewRouter = createTRPCRouter({
             questions: res.questions.map((question) => question.question),
           },
         });
+
+        // decrement available questions for user
+        UserRepository.decrementQuestionsForUsers(
+          ctx.currentUserId,
+          res.questions.length
+        );
       });
 
       // create empty interviewResult
