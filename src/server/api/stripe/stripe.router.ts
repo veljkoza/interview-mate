@@ -42,8 +42,8 @@ export const stripeRouter = createTRPCRouter({
         },
         line_items: items,
         mode: "payment",
-        success_url: `${origin}/?success=true`,
-        cancel_url: `${origin}/?canceled=true`,
+        success_url: `${origin}/?payment-status=success`,
+        cancel_url: `${origin}/?payment-status=failed`,
         automatic_tax: { enabled: true },
         client_reference_id: ctx.currentUserId,
       });

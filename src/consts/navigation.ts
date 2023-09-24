@@ -5,6 +5,7 @@ export const ROUTES = {
   "my-interviews": "/my-interviews",
   "interview-results": "/interview-results",
   pricing: "/pricing",
+  "bundles/id": (id: string) => `/bundles/${id}`,
 } as const;
 
 export const NAVIGATION = [
