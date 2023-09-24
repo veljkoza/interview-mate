@@ -2,9 +2,8 @@ import { env } from "~/env.mjs";
 import { createTRPCRouter, privateProcedure, publicProcedure } from "../trpc";
 import { z } from "zod";
 import { Stripe } from "stripe";
-const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-08-16",
-});
+import { stripeClient } from "./stripe.client";
+
 export const stripeRouter = createTRPCRouter({
   createCheckoutSession: privateProcedure
     .input(
@@ -34,7 +33,7 @@ export const stripeRouter = createTRPCRouter({
             },
           },
         }));
-      const session = await stripe.checkout.sessions.create({
+      const session = await stripeClient.checkout.sessions.create({
         metadata: {
           questions: input.items.reduce(
             (acc, item) => (acc += item.questions),

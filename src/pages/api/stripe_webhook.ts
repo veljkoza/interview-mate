@@ -6,11 +6,8 @@ import { env } from "~/env.mjs";
 import Stripe from "stripe";
 import { buffer } from "stream/consumers";
 import { UserRepository } from "~/server/api/user/user.repository";
+import { stripeClient } from "~/server/api/stripe/stripe.client";
 
-// Initialize Stripe with your secret key
-const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: "2023-08-16",
-});
 export const config = {
   api: {
     bodyParser: false,
@@ -33,7 +30,7 @@ export default async function handler(
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(
+      event = stripeClient.webhooks.constructEvent(
         buf.toString(),
         sig,
         webhookSecret
