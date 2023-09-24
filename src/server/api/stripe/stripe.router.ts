@@ -33,6 +33,7 @@ export const stripeRouter = createTRPCRouter({
             },
           },
         }));
+
       const session = await stripeClient.checkout.sessions.create({
         metadata: {
           questions: input.items.reduce(
