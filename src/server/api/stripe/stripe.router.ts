@@ -26,7 +26,7 @@ export const stripeRouter = createTRPCRouter({
           quantity: 1,
           price_data: {
             currency: "USD",
-            unit_amount: item.price * 100,
+            unit_amount: Math.round(item.price * 100),
             product_data: {
               name: `${item.title} - ${item.questions} questions`,
               description: item.description,

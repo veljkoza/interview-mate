@@ -55,7 +55,7 @@ const BundlePageContent = (props: PageProps) => {
       {
         onSuccess: (redirectUrl) => {
           if (!redirectUrl) return;
-          window.open(redirectUrl);
+          window.location.replace(redirectUrl);
         },
       }
     );
