@@ -16,6 +16,11 @@ import { ChatDictaphone } from "~/domain/mock-interview/components/chat-dictapho
 import { useDictaphone } from "~/components/dictaphone";
 import TextareaAutosize from "react-textarea-autosize";
 import { BackButton, Heading } from "~/components";
+import {
+  LinearProgressBar,
+  useLinearProgress,
+} from "~/components/linear-progress";
+import { Config } from "~/domain/Config";
 
 export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
   const {
@@ -44,6 +49,15 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     region: azureData?.region,
   });
 
+  
+  const { progress, resetProgress, startProgress } = useLinearProgress({
+    duration: Config.mockInterview.maximumSpeechRecognitionDuration,
+    onExpired: () => {
+      void stop();
+      resetProgress();
+    },
+  });
+
   useEffect(() => {
     resetTranscript();
     setMessageText("");
@@ -56,7 +70,9 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     return user?.profileImageUrl;
   };
 
-  const shouldDisableForm = isSendingMessage || isGettingMessages || listening;
+  const inputText = messageText + transcript;
+
+  const shouldDisableForm = isSendingMessage || isGettingMessages || !inputText;
   const shouldShowInterviewerGhost = isGettingMessages;
   if (!interview) return <div>404</div>;
 
@@ -66,9 +82,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
         <Button
           onClick={() =>
             router.replace(
-              `${ROUTES["interview-results"]}/${
-                interview.interviewResultId || ""
-              }`
+              ROUTES["interview-results/id"](interview.interviewResultId || "")
             )
           }
         >
@@ -85,15 +99,18 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
         }}
         className="mt-auto flex w-full items-end gap-4 pt-2"
       >
-        <Panel className="min-h-16 w-full p-0 py-0">
-          <TextareaAutosize
-            maxRows={5}
-            onChange={(e) => setMessageText(e.target.value)}
-            value={messageText + transcript}
-            className="h-full w-full bg-canvas-subtle py-3 text-muted-fg outline-none"
-            placeholder="Type your message..."
-          />
-        </Panel>
+        <div className="w-full">
+          <LinearProgressBar progress={progress} />
+          <Panel className="min-h-16 w-full p-0 py-0">
+            <TextareaAutosize
+              maxRows={5}
+              onChange={(e) => setMessageText(e.target.value)}
+              value={inputText}
+              className="h-full w-full bg-canvas-subtle py-3 text-muted-fg outline-none"
+              placeholder="Type your message..."
+            />
+          </Panel>
+        </div>
         <ChatDictaphone
           disabled={!isMicrophoneAvailable || !browserSupportsSpeechRecognition}
           isRecording={listening}
@@ -102,8 +119,10 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
               setMessageText((prev) => `${prev} ${transcript}`);
               void stop();
               resetTranscript();
+              resetProgress();
             } else {
               start({ continuous: true, language: "en-US" });
+              startProgress();
             }
           }}
         />

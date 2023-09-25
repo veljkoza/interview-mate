@@ -5,6 +5,9 @@ export const ROUTES = {
   "mock-interview": "/mock-interview",
   "my-interviews": "/my-interviews",
   "interview-results": "/interview-results",
+  "interview-results/id": function (id: string) {
+    return `${this["interview-results"]}/${id}`;
+  },
   pricing: "/pricing",
   "bundles/id": (id: string) => `/bundles/${id}`,
 } as const;
