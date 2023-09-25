@@ -13,6 +13,14 @@ import { Logo } from "~/components/logo";
 import Link from "next/link";
 import { AppHeader } from "~/components/app-header";
 import Head from "next/head";
+import { ROUTES } from "~/consts/navigation";
+import {
+  FaArrowAltCircleLeft,
+  FaArrowCircleLeft,
+  FaBackward,
+} from "react-icons/fa";
+import { BiArrowBack } from "react-icons/bi";
+import { TWithClassName } from "~/types/withClassName";
 
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 type InterviewResultDTO =
@@ -76,6 +84,7 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
       <main className="relative">
         <section className="py-10 ">
           <Container>
+            <GoToHomeLink className="mb-5 lg:mb-10" />
             <div className="mb-10 flex flex-wrap gap-6">
               {interviewResult.units.map((unit, i) => (
                 <Circle
@@ -204,9 +213,12 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
                 ))}
               </div>
             </div>
-            <div className="mt-10 flex items-center justify-end gap-4">
-              <Circle value="<" onClick={() => goToPrevQuestion()} />
-              <Circle value=">" onClick={() => goToNextQuestion()} />
+            <div className="mt-10 flex items-center justify-between ">
+              <GoToHomeLink />
+              <div className="flex items-center justify-end gap-4">
+                <Circle value="<" onClick={() => goToPrevQuestion()} />
+                <Circle value=">" onClick={() => goToNextQuestion()} />
+              </div>
             </div>
           </Container>
         </section>
@@ -214,6 +226,15 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
     </>
   );
 };
+
+const GoToHomeLink = ({ className = "" }: TWithClassName) => (
+  <Link
+    href={ROUTES["home"]}
+    className={`flex items-center gap-2 text-accent-secondary  ${className}`}
+  >
+    <BiArrowBack /> Go to home
+  </Link>
+);
 
 const FeedbackUnit = ({
   title,

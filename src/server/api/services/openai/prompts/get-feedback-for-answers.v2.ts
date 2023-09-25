@@ -26,6 +26,7 @@ export const getFeedbackForAnswerV2Prompt = (
 User Response: "${params.answer}"
 
 AI, please provide detailed feedback on this User response.
+Keep in mind that user used speech to text, anticipate some wrong words
 You also MUST provide list of meaningful and insightfull google search queries
 Your insight should be thought provoking and ruthless. We want user to leave interview knowing exactly what to work on to improve.
 User must know exactly what to do to improve.

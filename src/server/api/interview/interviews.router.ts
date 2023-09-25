@@ -9,6 +9,9 @@ import { InterviewResultRepository } from "../interview-result/interview-result.
 import { InterviewRepository } from "./interview.repository";
 import { MockInterviewAiService } from "../services/openai/openai";
 import { UserRepository } from "../user/user.repository";
+import { OpenAIQueue } from "../services/openai/openai-queue";
+
+const openAIQueue = new OpenAIQueue();
 
 const IndustrySchema = z.object({
   id: z.string(),
@@ -136,17 +139,17 @@ export const interviewRouter = createTRPCRouter({
 
       // 1.
       // get feedback and next question from openAi
-      MockInterviewAiService.getFeedbackForAnswerV2({
-        answer: input.answer,
-        question: input.question,
-      }).then(async (aiResponse) => {
+      openAIQueue.addToQueue(async () => {
+        const aiResponse = await MockInterviewAiService.getFeedbackForAnswerV2({
+          answer: input.answer,
+          question: input.question,
+        });
         await ctx.prisma.messageMetadata.create({
           data: {
             question: input.question,
             ...aiResponse,
           },
         });
-
         await ctx.prisma.interviewResultUnit.create({
           data: {
             answer: input.answer,
@@ -295,7 +298,7 @@ export const interviewRouter = createTRPCRouter({
                 title: res.nameOfTheJobPosting,
               },
             })
-            .then(() => console.log(res.nameOfTheJobPosting, "hazbulax"));
+            .then(() => console.log(res.nameOfTheJobPosting));
           return [res.introduction, res.introductionQuestion];
         }
         if (lastMessageSentByInterviewer) return [];

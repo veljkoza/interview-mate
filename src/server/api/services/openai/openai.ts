@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Configuration, OpenAIApi } from "openai";
-import {
-  type GetIntroductionPromptParams,
-  type GetNextQuestionPromptParams,
-  Prompts,
-  MockInterviewServiceType,
-} from "./prompts/prompts";
+import { Prompts, MockInterviewServiceType } from "./prompts/prompts";
 import { env } from "~/env.mjs";
-import { GetFeedbackForAnswerParams } from "./prompts/get-feedback-for-answer";
-import { GetFeedbackForAnswerV2Response } from "./prompts/get-feedback-for-answers.v2";
+import { loggerService } from "../logger/logger.service";
+
 const configuration = new Configuration({
   organization: "org-wGQSQOlnl30MtUnbW35FfICR",
   apiKey: env.OPENAI_API_KEY,
@@ -25,7 +20,7 @@ export const createOpenAICompletion = async ({
   const res = await openai.createChatCompletion({
     model,
     messages: [{ role: "user", content: prompt }],
-    max_tokens: 5000,
+    max_tokens: 4000,
     temperature: 0.55,
   });
 
@@ -34,6 +29,7 @@ export const createOpenAICompletion = async ({
 
 const getOpenAiResponse = async <R>(props: { prompt: string; fallback: R }) => {
   const res = await createOpenAICompletion({ prompt: props.prompt });
+  console.log(res, "hazbula");
   try {
     return res ? JSON.parse(res) : props.fallback;
   } catch (error) {

@@ -1,4 +1,5 @@
 export const ROUTES = {
+  home: "/",
   "job-board": "/job-board",
   "interview-creator": "/interview-creator",
   "mock-interview": "/mock-interview",
