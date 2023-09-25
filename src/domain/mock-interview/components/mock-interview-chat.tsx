@@ -1,6 +1,6 @@
 import { Container } from "~/components/containers";
 
-import { type FC } from "react";
+import { useEffect, type FC } from "react";
 import { Panel } from "~/components/panel";
 import { RiMenu4Fill } from "react-icons/ri";
 import { BsSend } from "react-icons/bs";
@@ -43,6 +43,11 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     authorizationToken: azureData?.token,
     region: azureData?.region,
   });
+
+  useEffect(() => {
+    resetTranscript();
+    setMessageText("");
+  }, []);
 
   const isInterviewOver = isEnd || interview?.status === "COMPLETED";
   const { user } = useClerk();
