@@ -75,6 +75,8 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
     };
   }, []);
 
+  console.log({ selectedQuestion });
+
   if (!interviewResult) return <Heading size={1}>404</Heading>;
   return (
     <>
@@ -174,7 +176,7 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
                 <Heading size={4}>Things you can do to improve answer:</Heading>
               </div>
               <div className=" grid grid-cols-1 gap-8 lg:grid-cols-2">
-                {(selectedQuestion?.suggestionsForImprovement as string[]).map(
+                {(selectedQuestion?.suggestionsForImprovement as string[])?.map(
                   (suggestion) => (
                     <Panel key={suggestion} className="p-5">
                       <p className="text-lg text-accent-secondary">
