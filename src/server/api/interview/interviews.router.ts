@@ -111,6 +111,13 @@ export const interviewRouter = createTRPCRouter({
         );
       });
 
+      const introductionMessages = InterviewRepository.getIntroductionMessages({
+        interviewId: interview.id,
+        userId: ctx.currentUserId,
+      })
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+
       // create empty interviewResult
       InterviewResultRepository.createInterviewResult({
         interviewId: interview.id,
@@ -351,7 +358,8 @@ export const interviewRouter = createTRPCRouter({
         id: input.id,
       });
       const status =
-        (interview.questions as string[]).length > 0
+        (interview.questions as string[]).length > 0 &&
+        interview.messages.length > 0
           ? "QUESTIONS_RECEIVED"
           : "QUESTIONS_NOT_RECEIVED";
 

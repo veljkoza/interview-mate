@@ -28,7 +28,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     interview,
     handleSubmit,
     messageText,
-    isGettingMessages,
+    // isGettingMessages,
     isSendingMessage,
     setMessageText,
     messagesContainerRef,
@@ -49,7 +49,6 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     region: azureData?.region,
   });
 
-  
   const { progress, resetProgress, startProgress } = useLinearProgress({
     duration: Config.mockInterview.maximumSpeechRecognitionDuration,
     onExpired: () => {
@@ -72,8 +71,8 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
 
   const inputText = messageText + transcript;
 
-  const shouldDisableForm = isSendingMessage || isGettingMessages || !inputText;
-  const shouldShowInterviewerGhost = isGettingMessages;
+  const shouldDisableForm = isSendingMessage || !inputText;
+  // const shouldShowInterviewerGhost = isGettingMessages;
   if (!interview) return <div>404</div>;
 
   const getForm = () => {
@@ -163,9 +162,9 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
               avatar={getAvatar(message.sender)}
             />
           ))}
-          {shouldShowInterviewerGhost && (
+          {/* {shouldShowInterviewerGhost && (
             <Message isGhost sender="INTERVIEWER" />
-          )}
+          )} */}
         </div>
         {getForm()}
       </Container>

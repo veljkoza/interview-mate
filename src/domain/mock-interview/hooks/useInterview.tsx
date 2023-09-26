@@ -19,15 +19,15 @@ export const useInterview = ({ id }: { id: string }) => {
       enabled: !!id,
     }
   );
-  const { isLoading: isGettingMessages } = api.interview.getMessages.useQuery(
-    {
-      id,
-    },
-    {
-      onSuccess: (res) => res.map(addMessageToState),
-      enabled: !!id,
-    }
-  );
+  // const { isLoading: isGettingMessages } = api.interview.getMessages.useQuery(
+  //   {
+  //     id,
+  //   },
+  //   {
+  //     onSuccess: (res) => res.map(addMessageToState),
+  //     enabled: !!id,
+  //   }
+  // );
 
   const { mutate: answerQuestion, isLoading: isSendingMessage } =
     api.interview.answerQuestion.useMutation({
@@ -38,10 +38,10 @@ export const useInterview = ({ id }: { id: string }) => {
     });
 
   const status = useMemo(() => {
-    if (isGettingMessages) return "GETTING_MESSAGES";
+    // if (isGettingMessages) return "GETTING_MESSAGES";
     if (isSendingMessage) return "SENDING_MESSAGE";
     return "LOADING";
-  }, [isSendingMessage, isGettingMessages]);
+  }, [isSendingMessage]);
   const { messages } = interview || {};
 
   const addMessageToState = (message: TMessageDTO) => {
@@ -105,6 +105,6 @@ export const useInterview = ({ id }: { id: string }) => {
     messageText,
     setMessageText,
     isSendingMessage,
-    isGettingMessages,
+    // isGettingMessages,
   };
 };
