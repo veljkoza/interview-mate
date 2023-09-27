@@ -1,30 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 import { Prompts, MockInterviewServiceType } from "./prompts/prompts";
 import { env } from "~/env.mjs";
 import { loggerService } from "../logger/logger.service";
 
-const configuration = new Configuration({
-  organization: "org-wGQSQOlnl30MtUnbW35FfICR",
-  apiKey: env.OPENAI_API_KEY,
-});
+// const configuration = new Configuration({
+//   organization: "org-wGQSQOlnl30MtUnbW35FfICR",
+//   apiKey: env.OPENAI_API_KEY,
+// });
 
 const model = env.CHAT_GPT_MODEL;
-export const openai = new OpenAIApi(configuration);
+export const openai = new OpenAI({
+  apiKey: env.OPENAI_API_KEY,
+});
 
 export const createOpenAICompletion = async ({
   prompt,
 }: {
   prompt: string;
 }) => {
-  const res = await openai.createChatCompletion({
+  const res = await openai.chat.completions.create({
     model,
     messages: [{ role: "user", content: prompt }],
     max_tokens: 3000,
     temperature: 0.55,
   });
 
-  return res.data.choices[0]?.message?.content.trim();
+  return res.choices[0]?.message.content?.trim();
+  // return res.data?.choices[0]?.message?.content.trim();
 };
 
 const getOpenAiResponse = async <R>(props: { prompt: string; fallback: R }) => {

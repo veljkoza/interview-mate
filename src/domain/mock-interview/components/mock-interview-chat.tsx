@@ -49,6 +49,12 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     region: azureData?.region,
   });
 
+  const clearInput = () => {
+    setMessageText("");
+    resetTranscript();
+    void stop();
+  };
+
   const { progress, resetProgress, startProgress } = useLinearProgress({
     duration: Config.mockInterview.maximumSpeechRecognitionDuration,
     onExpired: () => {
@@ -94,7 +100,8 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
         onSubmit={(e) => {
           if (shouldDisableForm) return;
           e.preventDefault();
-          handleSubmit();
+          handleSubmit({ message: inputText });
+          clearInput();
         }}
         className="mt-auto flex w-full items-end gap-4 pt-2"
       >

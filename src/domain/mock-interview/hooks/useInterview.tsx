@@ -80,11 +80,11 @@ export const useInterview = ({ id }: { id: string }) => {
     };
     addMessageToState(dummyMessage);
   };
-  const handleSubmit = () => {
+  const handleSubmit = ({ message }: { message: string }) => {
     generateDummyUserMessage();
     if (!interview) return;
     answerQuestion({
-      answer: messageText,
+      answer: message,
       question: lastMessageByInterviewer?.content || "",
       id,
     });
