@@ -21,6 +21,7 @@ import {
 } from "react-icons/fa";
 import { BiArrowBack } from "react-icons/bi";
 import { TWithClassName } from "~/types/withClassName";
+import { BouncyLoader } from "~/components";
 
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 type InterviewResultDTO =
@@ -44,9 +45,10 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
       return prev;
     });
   };
-  const { data: interviewResult } = api.interviewResult.getById.useQuery({
-    id,
-  });
+  const { data: interviewResult, isLoading } =
+    api.interviewResult.getById.useQuery({
+      id,
+    });
 
   const selectedQuestion = interviewResult?.units[selectedQuestionIndex];
 
@@ -77,154 +79,171 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
 
   console.log({ selectedQuestion });
 
-  if (!interviewResult) return <Heading size={1}>404</Heading>;
+  if (isLoading) return <BouncyLoader className="h-screen" />;
+
+  const getBody = () => {
+    if (!interviewResult || !interviewResult.units.length)
+      return (
+        <div className="flex h-screen flex-col items-center justify-center">
+          <BouncyLoader className="h-auto" />
+          <Heading size={4} className="mt-10 text-center">
+            We are still calculating feedback.
+            <br />
+            Keep refreshing the page.
+          </Heading>
+        </div>
+      );
+
+    return (
+      <section className="py-10 ">
+        <Container>
+          <GoToHomeLink className="mb-5 lg:mb-10" />
+          <div className="mb-10 flex flex-wrap gap-6">
+            {interviewResult.units.map((unit, i) => (
+              <Circle
+                key={i}
+                value={(i + 1).toString()}
+                onClick={() => setSelectedQuestionIndex(i)}
+              />
+            ))}
+          </div>
+          <div>
+            <Heading size={3} variant="primary">
+              {selectedQuestionIndex + 1}. {selectedQuestion?.question}
+            </Heading>
+            <div className="mt-20">
+              <Message
+                sender="USER"
+                message={selectedQuestion?.answer}
+                avatar={getAvatar("USER")}
+              />
+            </div>
+          </div>
+          <div className="mt-20 grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <FeedbackUnit
+              title={
+                <FeedbackUnit.Title>
+                  Understanding of concept:
+                </FeedbackUnit.Title>
+              }
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.understandingOfConcept}
+                </FeedbackUnit.Paragraph>
+              }
+            />
+            <FeedbackUnit
+              title={
+                <FeedbackUnit.Title>Technical accuracy:</FeedbackUnit.Title>
+              }
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.technicalAccuracy}
+                </FeedbackUnit.Paragraph>
+              }
+            />
+            <FeedbackUnit
+              title={
+                <FeedbackUnit.Title>Real world example:</FeedbackUnit.Title>
+              }
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.realWorldExample}
+                </FeedbackUnit.Paragraph>
+              }
+            />
+            <FeedbackUnit
+              title={
+                <FeedbackUnit.Title>
+                  Explanation and communication:
+                </FeedbackUnit.Title>
+              }
+              body={
+                <FeedbackUnit.Paragraph>
+                  {selectedQuestion?.explanationAndCommunication}
+                </FeedbackUnit.Paragraph>
+              }
+            />
+            {/* <FeedbackUnit
+        title={<FeedbackUnit.Title>Soft skills:</FeedbackUnit.Title>}
+        body={
+          <FeedbackUnit.Paragraph>
+            {selectedQuestion?.softSkills}
+          </FeedbackUnit.Paragraph>
+        }
+      /> */}
+            {/* <FeedbackUnit
+        title={<FeedbackUnit.Title>Suggestions:</FeedbackUnit.Title>}
+        body={
+          <FeedbackUnit.Paragraph>
+            {selectedQuestion?.suggestionsForImprovement?.toString()}
+          </FeedbackUnit.Paragraph>
+        }
+      /> */}
+          </div>
+          <div className="mt-20">
+            <div className="mb-10 flex items-center gap-6">
+              <Logo />
+              <Heading size={4}>Things you can do to improve answer:</Heading>
+            </div>
+            <div className=" grid grid-cols-1 gap-8 lg:grid-cols-2">
+              {(selectedQuestion?.suggestionsForImprovement as string[])?.map(
+                (suggestion) => (
+                  <Panel key={suggestion} className="p-5">
+                    <p className="text-lg text-accent-secondary">
+                      {suggestion}
+                    </p>
+                  </Panel>
+                )
+              )}
+            </div>
+          </div>
+          <div className="mt-20">
+            <div className="mb-10 flex items-center gap-6">
+              <Logo />
+              <Heading size={4}>
+                Keep learning with these{" "}
+                <span className="text-accent-secondary">Google</span> search
+                queries:
+              </Heading>
+            </div>
+            <div className="flex flex-col gap-8">
+              {(
+                selectedQuestion?.furtherLearningRecommendations as string[]
+              ).map((recommendation) => (
+                <div key={recommendation}>
+                  <Link
+                    target="_blank"
+                    href={`https://www.google.com/search?q=${recommendation.replace(
+                      " ",
+                      "+"
+                    )}`}
+                    className="border-b border-b-transparent text-lg text-accent-secondary hover:border-b-accent-secondary"
+                  >
+                    {recommendation}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-10 flex items-center justify-between ">
+            <GoToHomeLink />
+            <div className="flex items-center justify-end gap-4">
+              <Circle value="<" onClick={() => goToPrevQuestion()} />
+              <Circle value=">" onClick={() => goToNextQuestion()} />
+            </div>
+          </div>
+        </Container>
+      </section>
+    );
+  };
+
   return (
     <>
       <Head>
         <title>Result | Interview Mate</title>
       </Head>
-      <main className="relative">
-        <section className="py-10 ">
-          <Container>
-            <GoToHomeLink className="mb-5 lg:mb-10" />
-            <div className="mb-10 flex flex-wrap gap-6">
-              {interviewResult.units.map((unit, i) => (
-                <Circle
-                  key={i}
-                  value={(i + 1).toString()}
-                  onClick={() => setSelectedQuestionIndex(i)}
-                />
-              ))}
-            </div>
-            <div>
-              <Heading size={3} variant="primary">
-                {selectedQuestionIndex + 1}. {selectedQuestion?.question}
-              </Heading>
-              <div className="mt-20">
-                <Message
-                  sender="USER"
-                  message={selectedQuestion?.answer}
-                  avatar={getAvatar("USER")}
-                />
-              </div>
-            </div>
-            <div className="mt-20 grid grid-cols-1 gap-8 lg:grid-cols-2">
-              <FeedbackUnit
-                title={
-                  <FeedbackUnit.Title>
-                    Understanding of concept:
-                  </FeedbackUnit.Title>
-                }
-                body={
-                  <FeedbackUnit.Paragraph>
-                    {selectedQuestion?.understandingOfConcept}
-                  </FeedbackUnit.Paragraph>
-                }
-              />
-              <FeedbackUnit
-                title={
-                  <FeedbackUnit.Title>Technical accuracy:</FeedbackUnit.Title>
-                }
-                body={
-                  <FeedbackUnit.Paragraph>
-                    {selectedQuestion?.technicalAccuracy}
-                  </FeedbackUnit.Paragraph>
-                }
-              />
-              <FeedbackUnit
-                title={
-                  <FeedbackUnit.Title>Real world example:</FeedbackUnit.Title>
-                }
-                body={
-                  <FeedbackUnit.Paragraph>
-                    {selectedQuestion?.realWorldExample}
-                  </FeedbackUnit.Paragraph>
-                }
-              />
-              <FeedbackUnit
-                title={
-                  <FeedbackUnit.Title>
-                    Explanation and communication:
-                  </FeedbackUnit.Title>
-                }
-                body={
-                  <FeedbackUnit.Paragraph>
-                    {selectedQuestion?.explanationAndCommunication}
-                  </FeedbackUnit.Paragraph>
-                }
-              />
-              {/* <FeedbackUnit
-              title={<FeedbackUnit.Title>Soft skills:</FeedbackUnit.Title>}
-              body={
-                <FeedbackUnit.Paragraph>
-                  {selectedQuestion?.softSkills}
-                </FeedbackUnit.Paragraph>
-              }
-            /> */}
-              {/* <FeedbackUnit
-              title={<FeedbackUnit.Title>Suggestions:</FeedbackUnit.Title>}
-              body={
-                <FeedbackUnit.Paragraph>
-                  {selectedQuestion?.suggestionsForImprovement?.toString()}
-                </FeedbackUnit.Paragraph>
-              }
-            /> */}
-            </div>
-            <div className="mt-20">
-              <div className="mb-10 flex items-center gap-6">
-                <Logo />
-                <Heading size={4}>Things you can do to improve answer:</Heading>
-              </div>
-              <div className=" grid grid-cols-1 gap-8 lg:grid-cols-2">
-                {(selectedQuestion?.suggestionsForImprovement as string[])?.map(
-                  (suggestion) => (
-                    <Panel key={suggestion} className="p-5">
-                      <p className="text-lg text-accent-secondary">
-                        {suggestion}
-                      </p>
-                    </Panel>
-                  )
-                )}
-              </div>
-            </div>
-            <div className="mt-20">
-              <div className="mb-10 flex items-center gap-6">
-                <Logo />
-                <Heading size={4}>
-                  Keep learning with these{" "}
-                  <span className="text-accent-secondary">Google</span> search
-                  queries:
-                </Heading>
-              </div>
-              <div className="flex flex-col gap-8">
-                {(
-                  selectedQuestion?.furtherLearningRecommendations as string[]
-                ).map((recommendation) => (
-                  <div key={recommendation}>
-                    <Link
-                      target="_blank"
-                      href={`https://www.google.com/search?q=${recommendation.replace(
-                        " ",
-                        "+"
-                      )}`}
-                      className="border-b border-b-transparent text-lg text-accent-secondary hover:border-b-accent-secondary"
-                    >
-                      {recommendation}
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-10 flex items-center justify-between ">
-              <GoToHomeLink />
-              <div className="flex items-center justify-end gap-4">
-                <Circle value="<" onClick={() => goToPrevQuestion()} />
-                <Circle value=">" onClick={() => goToNextQuestion()} />
-              </div>
-            </div>
-          </Container>
-        </section>
-      </main>
+      <main className="relative">{getBody()}</main>
     </>
   );
 };
