@@ -152,3 +152,10 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+model Log {
+    id        String   @id @default(cuid())
+    timestamp DateTime @default(now())
+    body      Json
+    message   String?
+}

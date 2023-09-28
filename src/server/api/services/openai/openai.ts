@@ -19,23 +19,31 @@ export const createOpenAICompletion = async ({
 }: {
   prompt: string;
 }) => {
-  const res = await openai.chat.completions.create({
-    model,
-    messages: [{ role: "user", content: prompt }],
-    max_tokens: 3000,
-    temperature: 0.55,
-  });
-
-  return res.choices[0]?.message.content?.trim();
+  try {
+    const res = await openai.chat.completions.create({
+      model,
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 3000,
+      temperature: 0.55,
+    });
+    void loggerService.log(res.choices, "LOG: OpeanAI completion");
+    return res.choices[0]?.message.content?.trim();
+  } catch (error) {
+    void loggerService.log(error, "ERROR: OpenAI error");
+  }
   // return res.data?.choices[0]?.message?.content.trim();
 };
 
 const getOpenAiResponse = async <R>(props: { prompt: string; fallback: R }) => {
   const res = await createOpenAICompletion({ prompt: props.prompt });
-  console.log(res, "hazbula");
   try {
     return res ? JSON.parse(res) : props.fallback;
   } catch (error) {
+    void loggerService.log(
+      error,
+      "JSON ERROR: Error while parsing OpenAI response"
+    );
+
     throw new Error(
       `Error while parsing: ${res || ""}, Error: ${
         error as string

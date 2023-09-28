@@ -151,6 +151,7 @@ export const interviewRouter = createTRPCRouter({
           answer: input.answer,
           question: input.question,
         });
+
         await ctx.prisma.messageMetadata.create({
           data: {
             question: input.question,
