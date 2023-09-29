@@ -59,10 +59,13 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     duration: Config.mockInterview.maximumSpeechRecognitionDuration,
     onExpired: () => {
       void stop();
-      resetTranscript()
       resetProgress();
     },
   });
+
+  useEffect(() => {
+    setMessageText(transcript);
+  }, [transcript]);
 
   useEffect(() => {
     resetTranscript();
@@ -75,12 +78,6 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     if (sender === "INTERVIEWER") return "";
     return user?.profileImageUrl;
   };
-
-  useEffect(() => {
-    if (listening) {
-      setMessageText((prev) => prev + " " + transcript);
-    }
-  }, [transcript, listening]);
 
   const inputText = messageText;
 
@@ -116,6 +113,10 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
           <LinearProgressBar progress={progress} />
           <Panel className="min-h-16 w-full p-0 py-0">
             <TextareaAutosize
+              onFocus={() => {
+                void stop();
+                resetTranscript();
+              }}
               maxRows={5}
               onChange={(e) => setMessageText(e.target.value)}
               value={inputText}
