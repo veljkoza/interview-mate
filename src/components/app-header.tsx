@@ -16,6 +16,9 @@ export default function UserPopover() {
   const { loaded, signOut, user: clerkUser } = useClerk();
   const { data: user, remove } = api.user.getCurrentUser.useQuery(undefined, {
     enabled: !!clerkUser,
+    onError: (err) => {
+      console.log({ err });
+    },
   });
 
   if (!user) return <SignInButton />;
