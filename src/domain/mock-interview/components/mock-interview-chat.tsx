@@ -64,7 +64,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
   });
 
   useEffect(() => {
-    if (messageText) {
+    if (transcript) {
       setMessageText(transcript);
     }
   }, [transcript]);
