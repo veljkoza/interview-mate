@@ -5,6 +5,7 @@ import type { WebhookRequiredHeaders } from "svix";
 import type { WebhookEvent } from "@clerk/nextjs/server";
 import { Webhook } from "svix";
 import { prisma } from "~/server/db";
+import { loggerService } from "~/server/api/services/logger/logger.service";
 type User = {
   data: {
     birthday: string;
@@ -69,20 +70,25 @@ export default async function handler(
 
   const eventType = type;
   if (eventType === "user.created") {
-    const newUser = await prisma.user.create({
-      data: {
-        id: user.id,
-        email: user.email_addresses.find(
-          (email) => email.id === user.primary_email_address_id
-        )?.email_address,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        image: user.profile_image_url,
-        username: user.username,
-      },
-    });
-    console.log({ newUser });
-    res.status(201).json(user);
+    try {
+      const newUser = await prisma.user.create({
+        data: {
+          id: user.id,
+          email: user.email_addresses.find(
+            (email) => email.id === user.primary_email_address_id
+          )?.email_address,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          image: user.profile_image_url,
+          username: user.username,
+        },
+      });
+      console.log({ newUser });
+      void loggerService.log(newUser, "CLERK: User created from webhook");
+      res.status(201).json(user);
+    } catch (error) {
+      void loggerService.log(error, "CLERK-ERROR: User created from webhook");
+    }
   }
 }
 
