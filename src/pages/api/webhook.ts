@@ -67,9 +67,9 @@ export default async function handler(
   try {
     // Verify the webhook payload and headers
     evt = wh.verify(JSON.stringify(payload), headers) as WebhookEvent;
-    void loggerService.log("clerk", "CLERK-WH: Bad webhook payload");
+    void loggerService.log(payload, "CLERK-WH: Bad webhook payload");
   } catch (_) {
-    void loggerService.log("clerk", "CLERK-WH-ERROR: Bad webhook payload");
+    void loggerService.log(_, "CLERK-WH-ERROR: Bad webhook payload");
 
     // If the verification fails, return a 400 error
     return res.status(400).json({ message: "lose" });
