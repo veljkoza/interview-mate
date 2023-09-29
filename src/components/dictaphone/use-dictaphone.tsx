@@ -53,8 +53,6 @@ export const useDictaphone = (props: UseDictaphoneProps) => {
       });
   };
 
-  console.log({ speechRecognition });
-
   const stop = () =>
     speechRecognition?.abortListening().then((res) => {
       console.log("speech recognition stoped");

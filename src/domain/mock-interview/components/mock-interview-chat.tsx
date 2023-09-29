@@ -64,7 +64,9 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
   });
 
   useEffect(() => {
-    setMessageText(transcript);
+    if (messageText) {
+      setMessageText(transcript);
+    }
   }, [transcript]);
 
   useEffect(() => {
@@ -106,6 +108,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
           e.preventDefault();
           handleSubmit({ message: inputText });
           clearInput();
+          resetProgress();
         }}
         className="mt-auto flex w-full items-end gap-4 pt-2"
       >
