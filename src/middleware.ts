@@ -7,7 +7,7 @@ export default authMiddleware({
     "/about",
     "/for-companies",
     "/pricing",
-    "/api/webhook",
+    // "/api/webhook",
     "/api/stripe_webhook",
     // "/interview-creator",
     // "/api/trpc/industries.getAll",
