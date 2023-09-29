@@ -138,7 +138,7 @@ model User {
     firstName                  String?
     lastName                   String?
     username                   String?
-    email                      String?     @unique
+    email                      String?
     emailVerified              DateTime?
     image                      String?
     numberOfQuestionsAvailable Int         @default(1000)
