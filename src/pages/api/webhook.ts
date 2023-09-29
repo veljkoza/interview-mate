@@ -73,7 +73,7 @@ export default async function handler(
   }
 
   const eventType = type;
-  if (eventType === "session.created") {
+  if (eventType === "user.created") {
     try {
       const newUser = await prisma.user.create({
         data: {
