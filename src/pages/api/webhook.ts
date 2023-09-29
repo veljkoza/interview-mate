@@ -52,9 +52,6 @@ export default async function handler(
   req: NextApiRequestWithSvixRequiredHeaders,
   res: NextApiResponse
 ) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-
   void loggerService.log(req, "CLERK-WH: Request payload");
   const payload = req.body as unknown as User;
   const headers = req.headers;
@@ -67,16 +64,16 @@ export default async function handler(
   try {
     // Verify the webhook payload and headers
     evt = wh.verify(JSON.stringify(payload), headers) as WebhookEvent;
-    void loggerService.log(payload, "CLERK-WH: Bad webhook payload");
+    void loggerService.log("clerk", "CLERK-WH: Bad webhook payload");
   } catch (_) {
-    void loggerService.log(_, "CLERK-WH-ERROR: Bad webhook payload");
+    void loggerService.log("clerk", "CLERK-WH-ERROR: Bad webhook payload");
 
     // If the verification fails, return a 400 error
     return res.status(400).json({ message: "lose" });
   }
 
   const eventType = type;
-  if (eventType === "session.created") {
+  if (eventType === "user.created") {
     try {
       const newUser = await prisma.user.create({
         data: {
