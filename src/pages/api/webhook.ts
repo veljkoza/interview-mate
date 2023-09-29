@@ -52,6 +52,7 @@ export default async function handler(
   req: NextApiRequestWithSvixRequiredHeaders,
   res: NextApiResponse
 ) {
+  void loggerService.log(req, "CLERK-WH: Request payload");
   const payload = req.body as unknown as User;
   const headers = req.headers;
   const user = payload.data;
@@ -72,7 +73,7 @@ export default async function handler(
   }
 
   const eventType = type;
-  if (eventType === "user.created") {
+  if (eventType === "session.created") {
     try {
       const newUser = await prisma.user.create({
         data: {
