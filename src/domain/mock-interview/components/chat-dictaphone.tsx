@@ -25,6 +25,7 @@ export const ChatDictaphone = ({
   if (disabled) return <ChatDictaphoneDisabled />;
   return (
     <button
+      type="button"
       className="relative flex min-h-[50px] min-w-[50px] items-center justify-center rounded-full bg-accent-secondary"
       onClick={(e) => {
         e.preventDefault();
