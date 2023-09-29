@@ -6,7 +6,6 @@ import type { WebhookEvent } from "@clerk/nextjs/server";
 import { Webhook } from "svix";
 import { prisma } from "~/server/db";
 import { loggerService } from "~/server/api/services/logger/logger.service";
-import { env } from "~/env.mjs";
 type User = {
   data: {
     birthday: string;
@@ -47,12 +46,15 @@ type User = {
   object: string;
   type: string;
 };
-const webhookSecret: string = env.WEBHOOK_SECRET || "";
+const webhookSecret: string = process.env.WEBHOOK_SECRET || "";
 
 export default async function handler(
   req: NextApiRequestWithSvixRequiredHeaders,
   res: NextApiResponse
 ) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+
   void loggerService.log(req, "CLERK-WH: Request payload");
   const payload = req.body as unknown as User;
   const headers = req.headers;
@@ -74,7 +76,7 @@ export default async function handler(
   }
 
   const eventType = type;
-  if (eventType === "user.created") {
+  if (eventType === "session.created") {
     try {
       const newUser = await prisma.user.create({
         data: {
@@ -95,15 +97,7 @@ export default async function handler(
       void loggerService.log(error, "CLERK-ERROR: User created from webhook");
     }
   }
-
-  res.status(200).json({ message: "Event type not handled" });
 }
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
 
 type NextApiRequestWithSvixRequiredHeaders = NextApiRequest & {
   headers: IncomingHttpHeaders & WebhookRequiredHeaders;
