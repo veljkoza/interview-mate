@@ -106,6 +106,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
         onSubmit={(e) => {
           if (shouldDisableForm) return;
           e.preventDefault();
+          void stop();
           handleSubmit({ message: inputText });
           clearInput();
           resetProgress();
@@ -113,7 +114,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
         className="mt-auto flex w-full items-end gap-4 pt-2"
       >
         <div className="w-full">
-          <LinearProgressBar progress={progress} />
+          {isMicrophoneAvailable && <LinearProgressBar progress={progress} />}
           <Panel className="min-h-16 w-full p-0 py-0">
             <TextareaAutosize
               onFocus={() => {
