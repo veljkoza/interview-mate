@@ -59,6 +59,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     duration: Config.mockInterview.maximumSpeechRecognitionDuration,
     onExpired: () => {
       void stop();
+      resetTranscript()
       resetProgress();
     },
   });
@@ -75,7 +76,13 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
     return user?.profileImageUrl;
   };
 
-  const inputText = messageText + transcript;
+  useEffect(() => {
+    if (listening) {
+      setMessageText((prev) => prev + " " + transcript);
+    }
+  }, [transcript, listening]);
+
+  const inputText = messageText;
 
   const shouldDisableForm = isSendingMessage || !inputText;
   // const shouldShowInterviewerGhost = isGettingMessages;
@@ -122,7 +129,7 @@ export const MockInterviewChat: FC<{ id: string }> = ({ id }) => {
           isRecording={listening}
           onClick={() => {
             if (listening) {
-              setMessageText((prev) => `${prev} ${transcript}`);
+              // setMessageText((prev) => `${prev} ${transcript}`);
               void stop();
               resetTranscript();
               resetProgress();
