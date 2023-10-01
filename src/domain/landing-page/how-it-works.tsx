@@ -61,8 +61,19 @@ const Card = (props: { index: number; title: string; description: string }) => {
 export const HowItWorks = () => {
   return (
     <Container tag="section">
-      <Heading>How it works?</Heading>
-      <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <Heading className="text-center">How it works?</Heading>
+      <div>
+        <iframe
+          width="560"
+          height="315"
+          className="mx-auto mt-10 block lg:mt-20"
+          src="https://www.youtube.com/embed/oAeVpsdEB20?si=EN-GiaI1EVaneOyb"
+          title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        ></iframe>
+      </div>
+      {/* <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
         {COPY.map((how, i) => (
           <Card
             key={i}
@@ -71,7 +82,7 @@ export const HowItWorks = () => {
             description={how.description}
           />
         ))}
-      </div>
+      </div> */}
     </Container>
   );
 };
