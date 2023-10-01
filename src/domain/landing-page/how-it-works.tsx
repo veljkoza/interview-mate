@@ -62,11 +62,9 @@ export const HowItWorks = () => {
   return (
     <Container tag="section">
       <Heading className="text-center">How it works?</Heading>
-      <div>
+      <div className="relative mx-auto mt-10 block pb-[56%] lg:mt-20">
         <iframe
-          width="560"
-          height="315"
-          className="mx-auto mt-10 block lg:mt-20"
+          className="absolute inset-0 h-full w-full"
           src="https://www.youtube.com/embed/oAeVpsdEB20?si=EN-GiaI1EVaneOyb"
           title="YouTube video player"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
