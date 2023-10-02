@@ -1,12 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, FC } from "react";
 import { Button } from "~/components/buttons";
 import { Container } from "~/components/containers";
 import { Panel } from "~/components/panel";
-import { SelectOption } from "~/components/select-option";
+import { FocusedOption, SelectOption } from "~/components/select-option";
 import { Heading } from "~/components/typography";
 import { useInterviewCreator } from "./context/interview-creator.context";
 import { Topic } from "@prisma/client";
 import { api } from "~/utils/api";
+import { Separator } from "~/components";
 
 export const TopicSelectStep = () => {
   const { interviewCreatorState, dispatchInterviewCreatorUpdate } =
@@ -15,12 +16,10 @@ export const TopicSelectStep = () => {
     interviewCreatorState.interviewConfig.topics
   );
   const handleTopicClick = (clickedTopic: Topic) => {
-    console.log(clickedTopic);
     const foundIndex = selectedTopics.findIndex(
       (topic) => topic.id === clickedTopic.id
     );
     if (foundIndex >= 0) {
-      console.log({ foundIndex }, "test");
       const temp = [...selectedTopics];
       temp.splice(foundIndex, 1);
       setSelectedTopics(temp);
@@ -41,36 +40,48 @@ export const TopicSelectStep = () => {
         type: "SET_TOPICS",
         payload: selectedTopics,
       });
-  }, [selectedTopics]);
-
-  console.log({ selectedTopics });
+  }, [selectedTopics.length]);
 
   const { data: topics, isLoading } = api.topic.getTopicsByIndustryId.useQuery({
     id: interviewCreatorState.interviewConfig.industry.id,
   });
 
-  if (isLoading) return <div>Loading...</div>;
-  if (!topics) return <div>No data...</div>;
+  const getBody = () => {
+    if (isLoading)
+      return Array(50)
+        .fill("123")
+        .map((el, i) => <SelectOption.Ghost key={i} />);
+    if (!topics)
+      return (
+        <Heading>
+          Ooops. It looks like we cant show you this data right now.
+        </Heading>
+      );
+    return topics.map((topic) => (
+      <SelectOption
+        key={topic.id}
+        onClick={() => handleTopicClick(topic)}
+        text={topic.name}
+        variant={getOptionVariant(topic)}
+      />
+    ));
+  };
   return (
-    <Container>
-      <Heading className="mt-10">Select relevant topics.</Heading>
+    <Container className="flex h-full flex-col pb-4">
+      <Heading className="mt-5 md:mt-10">Select relevant topics.</Heading>
 
-      <Panel className="mt-14 flex h-[450px] flex-wrap gap-4 overflow-y-scroll">
-        {topics.map((topic) => (
-          <SelectOption
-            key={topic.id}
-            onClick={() => handleTopicClick(topic)}
-            text={topic.name}
-            variant={getOptionVariant(topic)}
-          />
-        ))}
+      <Panel className="mt-10 flex  h-[450px] flex-wrap gap-4 overflow-y-scroll lg:mt-14">
+        {getBody()}
       </Panel>
+      <Separator className="h-8" />
       <div className="mt-8 flex items-center justify-between">
         <Button
           className="ml-auto"
-          onClick={() =>
-            dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" })
-          }
+          onClick={() => {
+            if (selectedTopics.length > 0) {
+              dispatchInterviewCreatorUpdate({ type: "GO_TO_NEXT_STEP" });
+            }
+          }}
         >
           Next
         </Button>

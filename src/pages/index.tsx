@@ -8,6 +8,10 @@ import { AppHeader } from "~/components/app-header";
 import { Container } from "~/components/containers";
 import { Button } from "~/components/buttons";
 import { Panel } from "~/components/panel";
+import { ROUTES } from "~/consts/navigation";
+import { HowItWorks } from "~/domain/landing-page/how-it-works";
+import Head from "next/head";
+import { BouncyLoader } from "~/components";
 
 const FEATURES = [
   {
@@ -29,6 +33,9 @@ const FEATURES = [
 const Home: NextPage = () => {
   return (
     <>
+      <Head>
+        <title>Home | Interview Mate</title>
+      </Head>
       <main className="relative">
         <AppHeader />
         <div className="relative flex flex-col pt-20">
@@ -37,7 +44,7 @@ const Home: NextPage = () => {
             className="flex h-screen w-full grow items-center gap-4 "
           >
             <div className="lg:w-2/3">
-              <h1 className="text-3xl leading-normal text-white lg:text-6xl">
+              <h1 className="text-3xl leading-normal text-white lg:text-6xl lg:leading-snug">
                 Ace your next interview
                 <br />
                 with{" "}
@@ -49,7 +56,12 @@ const Home: NextPage = () => {
                 technologies. Perfect for both experienced professionals and
                 beginners, get the practice you need to land your dream job.
               </p>
-              <Button className="mt-14">Try it out</Button>
+              <Button
+                className="mt-14 inline-block"
+                href={ROUTES["interview-creator"]}
+              >
+                Try it out
+              </Button>
             </div>
             <Image
               src={ctaSrc}
@@ -57,7 +69,8 @@ const Home: NextPage = () => {
               className="-mr-96 hidden w-[600px] lg:block"
             />
           </Container>
-          <Container tag="section">
+          <HowItWorks />
+          {/* <Container tag="section">
             <h2 className="text-3xl leading-normal text-white lg:text-5xl">
               Features
             </h2>
@@ -79,17 +92,22 @@ const Home: NextPage = () => {
                 </div>
               ))}
             </div>
-          </Container>
+          </Container> */}
           <section className="">
-            <Container className="">
+            <Container className="flex flex-col items-center justify-center">
               <div className="mx-auto my-24 h-0.5 w-2/3 bg-accent-secondary"></div>
-              <h1 className="text-center text-3xl leading-normal text-white lg:text-5xl">
+              <h1 className="text-center text-3xl text-white lg:text-5xl lg:leading-relaxed">
                 Start mastering your interview skills today
                 <br />
                 with{" "}
                 <span className="text-accent-secondary">Interview Mate</span>
               </h1>
-              <Button className="mx-auto mt-14 ">Try it out</Button>
+              <Button
+                className="mx-auto mt-14 inline-block text-center"
+                href={ROUTES["interview-creator"]}
+              >
+                Try it out
+              </Button>
             </Container>
           </section>
           <footer className="py-24 text-center text-muted-fg">

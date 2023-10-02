@@ -14,16 +14,20 @@ export const useInterview = ({ id }: { id: string }) => {
 
   const { data: interview } = api.interview.getById.useQuery(
     { id },
-    { onSuccess: () => setTimeout(() => scrollToBottomOfMessages(), 150) }
-  );
-  const { isLoading: isGettingMessages } = api.interview.getMessages.useQuery(
     {
-      id,
-    },
-    {
-      onSuccess: (res) => res.map(addMessageToState),
+      onSuccess: () => setTimeout(() => scrollToBottomOfMessages(), 150),
+      enabled: !!id,
     }
   );
+  // const { isLoading: isGettingMessages } = api.interview.getMessages.useQuery(
+  //   {
+  //     id,
+  //   },
+  //   {
+  //     onSuccess: (res) => res.map(addMessageToState),
+  //     enabled: !!id,
+  //   }
+  // );
 
   const { mutate: answerQuestion, isLoading: isSendingMessage } =
     api.interview.answerQuestion.useMutation({
@@ -34,10 +38,10 @@ export const useInterview = ({ id }: { id: string }) => {
     });
 
   const status = useMemo(() => {
-    if (isGettingMessages) return "GETTING_MESSAGES";
+    // if (isGettingMessages) return "GETTING_MESSAGES";
     if (isSendingMessage) return "SENDING_MESSAGE";
     return "LOADING";
-  }, [isSendingMessage, isGettingMessages]);
+  }, [isSendingMessage]);
   const { messages } = interview || {};
 
   const addMessageToState = (message: TMessageDTO) => {
@@ -76,11 +80,11 @@ export const useInterview = ({ id }: { id: string }) => {
     };
     addMessageToState(dummyMessage);
   };
-  const handleSubmit = () => {
+  const handleSubmit = ({ message }: { message: string }) => {
     generateDummyUserMessage();
     if (!interview) return;
     answerQuestion({
-      answer: messageText,
+      answer: message,
       question: lastMessageByInterviewer?.content || "",
       id,
     });
@@ -101,6 +105,6 @@ export const useInterview = ({ id }: { id: string }) => {
     messageText,
     setMessageText,
     isSendingMessage,
-    isGettingMessages,
+    // isGettingMessages,
   };
 };

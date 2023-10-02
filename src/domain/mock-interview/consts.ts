@@ -3,7 +3,7 @@ export const getInterviewConfigFromParams = (query: string) => {
     selectedIndustry: "",
     selectedTopics: [] as string[],
     yearsOfExperience: 0,
-    durationInMinutes: 0,
+    numberOfQuestions: 0,
   };
 
   return [...Object.entries(query)].reduce((acc, [key, value]) => {

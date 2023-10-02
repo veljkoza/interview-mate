@@ -13,16 +13,17 @@ import { STEPS_LENGTH } from "../consts/steps";
 const initialInterviewConfig: RouterInputs["interview"]["create"] = {
   topics: [],
   industry: {
-    id: "-1",
+    id: "",
     name: "",
   },
   yearsOfExperience: -1,
-  durationInMinutes: -1,
+  numberOfQuestions: -1,
 };
 
 const DEFAULT_CONTEXT_VALUE = {
   step: 0,
   interviewConfig: initialInterviewConfig,
+  stepsArray: [] as string[],
 };
 
 type TInterviewCreatorValue = typeof DEFAULT_CONTEXT_VALUE;
@@ -46,7 +47,7 @@ type TActionType =
   | "SET_INDUSTRY"
   | "SET_TOPICS"
   | "SET_YEARS_OF_EXPERIENCE"
-  | "SET_INTERVIEW_DURATION";
+  | "SET_NUMBER_OF_QUESTIONS";
 type TAction = {
   type: TActionType;
   payload?: unknown;
@@ -61,10 +62,18 @@ const interviewCreatorReducer = (
     case "GO_TO_NEXT_STEP":
       const nextStep = prevState.step + 1;
       if (nextStep > STEPS_LENGTH) return prevState;
+      if (nextStep - 1 < prevState.stepsArray.length) {
+        return {
+          ...prevState,
+          step: nextStep,
+        };
+      }
       return {
         ...prevState,
         step: nextStep,
+        stepsArray: [...prevState.stepsArray, ""],
       };
+
     case "SET_STEP":
       if (typeof payload === "number" && payload < 0) return prevState;
       return {
@@ -98,14 +107,14 @@ const interviewCreatorReducer = (
           yearsOfExperience: payload,
         },
       };
-    case "SET_INTERVIEW_DURATION":
+    case "SET_NUMBER_OF_QUESTIONS":
       if (typeof payload !== "number")
-        throw new Error("durationInMinutes should be a number");
+        throw new Error("numberOfQuestions should be a number");
       return {
         ...prevState,
         interviewConfig: {
           ...prevState.interviewConfig,
-          durationInMinutes: payload,
+          numberOfQuestions: payload,
         },
       };
 

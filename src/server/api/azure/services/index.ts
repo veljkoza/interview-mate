@@ -1,0 +1,1 @@
+export { azureService } from "./azure";

@@ -3,6 +3,9 @@ import { messageDTO } from "../DTOs/messageDTO";
 import { TRPCContextType } from "../trpc";
 import { Interview, Message } from "@prisma/client";
 import { interviewDTO } from "../DTOs/interviewDTO";
+import { prisma } from "~/server/db";
+import { clerkClient } from "@clerk/nextjs";
+import { MockInterviewAiService } from "../services/openai/openai";
 
 // export const createMessageForInterview = async (
 //   ctx: TRPCContextType,
@@ -65,14 +68,93 @@ export const updateInterviewById = async (
 
   const newInterview = await ctx.prisma.interview.update({
     where: { id: data.id },
-    data,
+    data: {
+      ...data,
+      questions: data.questions as string[],
+    },
     include: { messages: true, configuration: true },
   });
 
   return newInterview;
 };
 
+const getIntroductionMessages = async (input: {
+  interviewId: string;
+  userId: string;
+}) => {
+  const interview = await prisma.interview.findFirst({
+    where: {
+      id: input.interviewId,
+    },
+    include: {
+      messages: true,
+      configuration: {
+        include: {
+          industry: true,
+          topics: true,
+        },
+      },
+    },
+  });
+  if (!interview)
+    throw new TRPCError({
+      code: "NOT_FOUND",
+      cause: "Interview not found",
+      message: "Interview not found",
+    });
+  const { messages } = interview;
+
+  // if last message was by interviewer do nothing
+  const lastMessageSentByInterviewer =
+    messages.at(-1)?.sender === "INTERVIEWER";
+
+  const getNextTechnicalQuestion = () => [
+    "Thanks for the answer",
+    "What is React?",
+  ];
+  const user = await clerkClient.users.getUser(input.userId);
+
+  const getContent = async () => {
+    if (messages.length === 0) {
+      const res = await MockInterviewAiService.getIntroduction({
+        industry: interview.configuration.industry.name,
+        personName: user.firstName || user.username || "",
+      });
+      void prisma.interview
+        .update({
+          where: { id: input.interviewId },
+          data: {
+            title: res.nameOfTheJobPosting,
+          },
+        })
+        .then(() => console.log(res.nameOfTheJobPosting));
+      return [res.introduction, res.introductionQuestion];
+    }
+    if (lastMessageSentByInterviewer) return [];
+
+    if (messages.length > 3) return getNextTechnicalQuestion();
+    return getNextTechnicalQuestion();
+  };
+
+  const contents = await getContent();
+
+  const newMessages = contents.map((content, i) =>
+    prisma.message.create({
+      data: {
+        content: content,
+        sender: "INTERVIEWER",
+        isQuestion: i === contents.length - 1,
+        interview: { connect: { id: input.interviewId } }, // Associate the message with the interview
+      },
+      select: messageDTO,
+    })
+  );
+  const interviewerMessages = await prisma.$transaction(newMessages);
+  return [...interviewerMessages];
+};
+
 export const InterviewRepository = {
   getInterviewOrThrow,
   updateInterviewById,
+  getIntroductionMessages,
 };

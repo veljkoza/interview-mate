@@ -25,37 +25,22 @@ model Example {
     updatedAt DateTime @updatedAt
 }
 
-// Necessary for Next auth
-model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token_expires_in Int?
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-    @@unique([provider, providerAccountId])
-}
-
 enum SENDER {
     USER
     INTERVIEWER
 }
 
 model MessageMetadata {
-    id           String    @id @default(cuid())
-    satisfaction Int
-    feedback     String    @db.Text
-    Message      Message[]
-    question     String?
+    id                             String    @id @default(cuid())
+    Message                        Message[]
+    question                       String?
+    understandingOfConcept         String    @db.Text
+    technicalAccuracy              String    @db.Text
+    realWorldExample               String    @db.Text
+    explanationAndCommunication    String    @db.Text
+    suggestionsForImprovement      Json //string[]
+    furtherLearningRecommendations Json //string[]
+    softSkills                     String    @db.Text
 }
 
 enum InterviewPhase {
@@ -102,7 +87,7 @@ model Topic {
 model InterviewConfiguration {
     id                String      @id @default(cuid())
     yearsOfExperience Int
-    durationInMinutes Int         @default(15)
+    numberOfQuestions Int         @default(10)
     topics            Topic[]
     industry          Industry    @relation(fields: [industryId], references: [id])
     Interview         Interview[]
@@ -111,13 +96,18 @@ model InterviewConfiguration {
 
 model Interview {
     id                String                 @id @default(cuid())
+    createdAt         DateTime               @default(now())
+    updatedAt         DateTime               @updatedAt
     messages          Message[]
     status            InterviewStatus
     configuration     InterviewConfiguration @relation(fields: [configurationId], references: [id])
     configurationId   String
     userId            String
+    title             String?
+    questions         Json //string[]
     interviewResult   InterviewResult?       @relation(fields: [interviewResultId], references: [id])
     interviewResultId String?                @unique
+    User              User                   @relation(fields: [userId], references: [id])
 }
 
 model InterviewResult {
@@ -128,32 +118,31 @@ model InterviewResult {
 }
 
 model InterviewResultUnit {
-    id                String           @id @default(cuid())
-    question          String           @db.Text
-    answer            String           @db.Text
-    relevantTopics    Topic[]
-    InterviewResult   InterviewResult? @relation(fields: [interviewResultId], references: [id])
-    interviewResultId String?
-    satisfaction      Int
-    feedback          String           @db.Text
-}
-
-model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                             String           @id @default(cuid())
+    question                       String           @db.Text
+    answer                         String           @db.Text
+    relevantTopics                 Topic[]
+    InterviewResult                InterviewResult? @relation(fields: [interviewResultId], references: [id])
+    interviewResultId              String?
+    understandingOfConcept         String           @db.Text
+    technicalAccuracy              String           @db.Text
+    realWorldExample               String           @db.Text
+    explanationAndCommunication    String           @db.Text
+    suggestionsForImprovement      Json //string[]
+    furtherLearningRecommendations Json //string[]
+    softSkills                     String           @db.Text
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
+    id                         String      @id @default(cuid())
+    firstName                  String?
+    lastName                   String?
+    username                   String?
+    email                      String?
+    emailVerified              DateTime?
+    image                      String?
+    numberOfQuestionsAvailable Int         @default(1000)
+    interviews                 Interview[]
 }
 
 model VerificationToken {
@@ -162,4 +151,11 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model Log {
+    id        String   @id @default(cuid())
+    timestamp DateTime @default(now())
+    body      Json
+    message   String?
 }
