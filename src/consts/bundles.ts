@@ -4,7 +4,7 @@ export const BUNDLES = [
     description:
       "You've gone through couple of easy interviews, and maybe even started working, but now you want to spice it up.",
     numberOfQuestions: 500,
-    price: 0.2,
+    price: 0.55,
     id: "price_1NtEHMJkt4yBCWfza8WP6LKM",
   },
   {
