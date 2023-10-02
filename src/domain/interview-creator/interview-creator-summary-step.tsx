@@ -9,6 +9,8 @@ import { Logo } from "~/components/logo";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "~/consts/navigation";
 import { BouncyLoader } from "~/components/loaders";
+import { Config } from "../Config";
+import { toast } from "react-toastify";
 
 const SingleSummary = (
   props: { title: string; className?: string } & PropsWithChildren
@@ -34,6 +36,8 @@ export const InterviewCreatorSummaryStep = () => {
   } = interviewConfig;
   const router = useRouter();
 
+  const [pollCount, setPollCount] = useState(0);
+
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
 
   api.interview.questionsReceivedPoll.useQuery(
@@ -41,11 +45,23 @@ export const InterviewCreatorSummaryStep = () => {
     {
       enabled: !!interviewId,
       onSuccess: (res) => {
+        setPollCount((prev) => prev + 1);
         if (res.status === "QUESTIONS_RECEIVED") {
           router.replace(`${ROUTES["mock-interview"]}/${res.id}`);
         }
+        if (pollCount > Config.interviewCreator.maximumNumberOfPolls) {
+          toast.error(
+            'Request timed out. Check "My Interviews" page shortly to see your created interview.',
+            {
+              closeOnClick: true,
+              autoClose: false,
+            }
+          );
+          router.replace(ROUTES["my-interviews"]);
+        }
       },
-      refetchInterval: 1000,
+      refetchInterval: Config.interviewCreator.pollingRefetchInterval,
+      retry: 10,
     }
   );
 

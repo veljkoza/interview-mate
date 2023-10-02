@@ -7,10 +7,31 @@ import { api } from "~/utils/api";
 
 import "~/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import Script from "next/script";
+import { env } from "~/env.mjs";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
+const GTM_ID = env.NEXT_PUBLIC_GTM_ID;
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
     <ClerkProvider {...pageProps}>
+      {GTM_ID && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${GTM_ID}`}
+          />
+          <Script id="google-analytics">
+            {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+ 
+          gtag('config', '${GTM_ID}');
+        `}
+          </Script>
+        </>
+      )}
       <Head>
         <title>Interview Mate</title>
         <meta
@@ -23,6 +44,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 
         <script async src="https://w.appzi.io/w.js?token=gmO7n"></script>
       </Head>
+      <ToastContainer />
       <Component {...pageProps} />
     </ClerkProvider>
   );

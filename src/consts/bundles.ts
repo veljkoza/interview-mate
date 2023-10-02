@@ -1,13 +1,5 @@
 export const BUNDLES = [
   {
-    title: "Medior",
-    description:
-      "You've gone through couple of easy interviews, and maybe even started working, but now you want to spice it up.",
-    numberOfQuestions: 500,
-    price: 0.2,
-    id: "price_1NtEHMJkt4yBCWfza8WP6LKM",
-  },
-  {
     title: "Quickie",
     description:
       "You've got interview coming up in half an hour, let's get your mind working. You got this!",

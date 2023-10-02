@@ -5,4 +5,8 @@ export const Config = {
     maximumSpeechRecognitionDuration:
       +env.NEXT_PUBLIC_MAXIMUM_SPEECH_RECOGNITION_DURATION || 70,
   },
+  interviewCreator: {
+    maximumNumberOfPolls: 30,
+    pollingRefetchInterval: 1500,
+  },
 };
