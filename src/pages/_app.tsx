@@ -19,6 +19,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       {GTM_ID && (
         <>
           <Script
+            async
             src={`https://www.googletagmanager.com/gtag/js?id=${GTM_ID}`}
           />
           <Script id="google-analytics">
