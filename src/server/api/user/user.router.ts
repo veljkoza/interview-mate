@@ -1,5 +1,6 @@
 import { clerkClient } from "@clerk/nextjs";
 import { createTRPCRouter, privateProcedure } from "../trpc";
+import { env } from "~/env.mjs";
 
 export const userRouter = createTRPCRouter({
   getCurrentUser: privateProcedure.query(async ({ ctx }) => {
@@ -24,6 +25,7 @@ export const userRouter = createTRPCRouter({
           lastName: clerkUser.lastName,
           image: clerkUser.profileImageUrl,
           username: clerkUser.username,
+          numberOfQuestionsAvailable: +env.DEFAULT_NUMBER_OF_QUESTIONS,
         },
       });
       return user;

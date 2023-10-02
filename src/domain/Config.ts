@@ -1,5 +1,8 @@
-import { MockInterviewConfig } from "./mock-interview/mock-interview.config";
+import { env } from "~/env.mjs";
 
 export const Config = {
-  mockInterview: MockInterviewConfig,
+  mockInterview: {
+    maximumSpeechRecognitionDuration:
+      +env.NEXT_PUBLIC_MAXIMUM_SPEECH_RECOGNITION_DURATION || 70,
+  },
 };
