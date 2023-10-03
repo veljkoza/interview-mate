@@ -19,6 +19,7 @@ const server = z.object({
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string(),
   STRIPE_WEBHOOK_SECRET: z.string(),
   DEFAULT_NUMBER_OF_QUESTIONS: z.string(),
+  LOGGING_ENABLED: z.string().optional(),
 });
 
 /**
@@ -56,6 +57,7 @@ const processEnv = {
   NEXT_PUBLIC_MAXIMUM_SPEECH_RECOGNITION_DURATION:
     process.env.NEXT_PUBLIC_MAXIMUM_SPEECH_RECOGNITION_DURATION,
   NEXT_PUBLIC_GTM_ID: process.env.NEXT_PUBLIC_GTM_ID,
+  LOGGING_ENABLED: process.env.LOGGING_ENABLED,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 
