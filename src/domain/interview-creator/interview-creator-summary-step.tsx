@@ -11,6 +11,8 @@ import { ROUTES } from "~/consts/navigation";
 import { BouncyLoader } from "~/components/loaders";
 import { Config } from "../Config";
 import { toast } from "react-toastify";
+import { ProgressBar } from "~/components";
+import { useToggler } from "~/hooks";
 
 const SingleSummary = (
   props: { title: string; className?: string } & PropsWithChildren
@@ -39,6 +41,7 @@ export const InterviewCreatorSummaryStep = () => {
   const [pollCount, setPollCount] = useState(0);
 
   const [isLoadingRoute, setIsLoadingRoute] = useState(false);
+  const [progressBarCompleted, setProgressBarCompleted] = useState(false);
 
   api.interview.questionsReceivedPoll.useQuery(
     { id: interviewId! },
@@ -47,7 +50,10 @@ export const InterviewCreatorSummaryStep = () => {
       onSuccess: (res) => {
         setPollCount((prev) => prev + 1);
         if (res.status === "QUESTIONS_RECEIVED") {
-          router.replace(`${ROUTES["mock-interview"]}/${res.id}`);
+          setProgressBarCompleted(true);
+          setTimeout(() => {
+            router.replace(`${ROUTES["mock-interview"]}/${res.id}`);
+          }, 500);
         }
         if (pollCount > Config.interviewCreator.maximumNumberOfPolls) {
           toast.error(
@@ -80,11 +86,26 @@ export const InterviewCreatorSummaryStep = () => {
 
   const handleSubmit = () => mutate(interviewConfig);
 
-  if (isLoading || isLoadingRoute)
+  // 100 % / total duration in seconds = %/s
+  const progressBarStepPercentage =
+    100 / (interviewConfig.numberOfQuestions * 6);
+
+  const shouldShowLoader = isLoading || isLoadingRoute;
+
+  if (shouldShowLoader)
     return (
       <BouncyLoader
         className="fixed inset-0"
         messages={BouncyLoader.questionsLoadingMessages}
+        progressBar={
+          <div className="mt-32 w-1/2 md:w-1/3 lg:w-1/4">
+            <ProgressBar
+              shouldComplete={progressBarCompleted}
+              stepPercentage={progressBarStepPercentage}
+              intervalTime={1000}
+            />
+          </div>
+        }
       />
     );
 

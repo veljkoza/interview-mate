@@ -1,8 +1,10 @@
-import { FC, useEffect, useState } from "react";
+import { FC, ReactNode, useEffect, useState } from "react";
 import { Logo } from "../logo";
 import { TWithClassName } from "~/types/withClassName";
 
 const loadingMessages: string[] = [
+  "This might take a while...",
+  "This might take a while...",
   "Summoning the interview spirits...",
   "Adjusting the AI's tie for the interview...",
   "Brewing a cup of virtual coffee for your session...",
@@ -22,9 +24,11 @@ const loadingMessages: string[] = [
 export const BouncyLoader = ({
   className = "",
   messages,
+  progressBar,
 }: {
   className?: string;
   messages?: string[];
+  progressBar?: ReactNode;
 }) => {
   const [currentMessage, setCurrentMessage] = useState(0);
 
@@ -56,6 +60,7 @@ export const BouncyLoader = ({
           </div>
         ))}
       </div>
+      {progressBar}
     </div>
   );
 };

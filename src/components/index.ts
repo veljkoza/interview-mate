@@ -11,3 +11,6 @@ export * from "./select-option";
 export * from "./typography";
 export * from "./separator";
 export * from "./back-button";
+export * from "./modal";
+export * from "./page-container";
+export * from "./progress-bar";

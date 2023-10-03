@@ -5,7 +5,7 @@ import Head from "next/head";
 
 import { FC, useState } from "react";
 import { BsArrowDown } from "react-icons/bs";
-import { BackButton, Heading, PageHeader } from "~/components";
+import { BackButton, Heading, PageContainer, PageHeader } from "~/components";
 import { AppHeader } from "~/components/app-header";
 import { Container } from "~/components/containers";
 import { BouncyLoader } from "~/components/loaders";
@@ -27,31 +27,15 @@ const MyInterviews: NextPage = () => {
     api.interview.getInterviewsForUser.useQuery();
 
   return (
-    <>
-      <Head>
-        <title>My Interviews | Interview Mate</title>
-      </Head>
-      <main className="relative pb-10">
-        <AppHeader />
-        <div className="relative flex flex-col pt-36">
-          <Container>
-            <PageHeader
-              backButton={<BackButton />}
-              title={
-                <h1 className="text-3xl leading-normal text-white lg:text-5xl">
-                  My interviews
-                </h1>
-              }
-            />
-            <div className="h-10"></div>
-            <MyInterviewsPageContent
-              interviews={interviews}
-              isLoading={isLoading}
-            />
-          </Container>
-        </div>
-      </main>
-    </>
+    <PageContainer
+      SEO={{ title: "My Interviews" }}
+      pageHeader={
+        <PageContainer.PageHeader title={<Heading>My Interviews</Heading>} />
+      }
+    >
+      <div className="h-10"></div>
+      <MyInterviewsPageContent interviews={interviews} isLoading={isLoading} />
+    </PageContainer>
   );
 };
 
