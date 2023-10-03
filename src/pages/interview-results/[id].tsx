@@ -52,8 +52,8 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
     closeRewardModal();
     getAwardForFirstCompletedInterview();
   };
-
-  const { data: currentUser } = api.user.getCurrentUser.useQuery(undefined, {
+  
+  api.user.getCurrentUser.useQuery(undefined, {
     onSuccess: (res) => {
       if (!res.firstInterviewCompletedAwardClaimed) {
         openRewardModal();

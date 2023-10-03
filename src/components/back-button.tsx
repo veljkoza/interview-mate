@@ -8,7 +8,7 @@ export const BackButton = () => {
     <button
       type="button"
       onClick={() => router.back()}
-      className="text-2xl text-accent-secondary"
+      className="text-2xl text-accent-secondary md:text-3xl"
     >
       <IoMdArrowBack />
     </button>

@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { RiLoaderFill, RiUser4Fill } from "react-icons/ri";
 import { Fragment } from "react";
 import Image from "next/image";
-import { SignInButton, UserButton, useClerk } from "@clerk/nextjs";
+import { SignInButton, UserButton, useClerk, UserProfile } from "@clerk/nextjs";
 import { api } from "~/utils/api";
 
 export default function UserPopover() {
@@ -78,6 +78,9 @@ export default function UserPopover() {
               </p>
               <Link href={ROUTES["my-interviews"]} className=" p-4 text-left">
                 My interviews
+              </Link>
+              <Link href={ROUTES["my-profile"]} className=" p-4 text-left">
+                My profile
               </Link>
               {/* <button className=" p-4 text-left">My profile</button> */}
               <button

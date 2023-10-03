@@ -48,17 +48,13 @@ const Pricing: NextPage = () => {
       <main className="fixed inset-0 flex  w-full flex-col overflow-y-auto pt-6 lg:pt-20 ">
         <AppHeader />
         <div className="items-center justify-center px-4 pb-10 pt-20 md:px-10 lg:px-24">
-          <PageHeader
-            title={
-              <Heading
-                variant="secondary"
-                size={1}
-                className="mt-20 w-full text-center"
-              >
-                Choose your bundle
-              </Heading>
-            }
-          />
+          <Heading
+            variant="secondary"
+            size={1}
+            className="mt-20 w-full text-center"
+          >
+            Choose your bundle
+          </Heading>
 
           <div className="mt-24 grid grid-cols-1 gap-4 gap-y-24 md:grid-cols-3 lg:mt-32 lg:grid-cols-5">
             {BUNDLES.map((bundle) => (
