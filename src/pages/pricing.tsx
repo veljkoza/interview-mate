@@ -14,8 +14,15 @@ import {
 } from "~/components";
 import { BUNDLES, BundleType } from "~/consts/bundles";
 import { ROUTES } from "~/consts/navigation";
+import { Config } from "~/domain/Config";
 import { env } from "~/env.mjs";
 import { api } from "~/utils/api";
+
+const DISCOUNT = Config.pricing.discount;
+export const getDiscountedPrice = (price: number) => {
+  const discountedPrice = price - price * (DISCOUNT / 100);
+  return discountedPrice.toFixed(2);
+};
 
 const stripePromise = loadStripe(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 const Pricing: NextPage = () => {
@@ -73,9 +80,18 @@ const Pricing: NextPage = () => {
                   <p className="mt-auto text-right text-3xl text-accent-secondary">
                     {bundle.numberOfQuestions} questions
                   </p>
-                  <Heading size={4} className="mt-5 text-right">
-                    ${bundle.price}
-                  </Heading>
+                  <div className="ml-auto flex gap-4">
+                    <Heading
+                      size={4}
+                      variant="muted"
+                      className="mt-5 text-right text-muted-fg line-through"
+                    >
+                      ${bundle.price}
+                    </Heading>
+                    <Heading size={3} className="mt-5 text-right ">
+                      ${getDiscountedPrice(bundle.price)}
+                    </Heading>
+                  </div>
                 </article>
                 <Button
                   role="link"

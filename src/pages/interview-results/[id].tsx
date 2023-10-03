@@ -21,12 +21,46 @@ import {
 } from "react-icons/fa";
 import { BiArrowBack } from "react-icons/bi";
 import { TWithClassName } from "~/types/withClassName";
-import { BouncyLoader } from "~/components";
+import { BouncyLoader, MyModal } from "~/components";
+import { useToggler } from "~/hooks";
+import { toast } from "react-toastify";
 
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 type InterviewResultDTO =
   RouterOutputs["interview"]["getInterviewResultsById"]["0"];
 const InterviewResults: NextPage<PageProps> = ({ id }) => {
+  const {
+    isOpen: isRewardModalOpen,
+    open: openRewardModal,
+    close: closeRewardModal,
+  } = useToggler(false);
+
+  const { mutate: getAwardForFirstCompletedInterview } =
+    api.user.getAwardForFirstCompletedInterview.useMutation({
+      onSuccess: () => {
+        toast.success(
+          "You have successfuly claimed 20 new interview questions!"
+        );
+      },
+      onError: () =>
+        toast.error(
+          "Something went wrong while claiming questions. Contact support."
+        ),
+    });
+
+  const handleModalClose = () => {
+    closeRewardModal();
+    getAwardForFirstCompletedInterview();
+  };
+
+  const { data: currentUser } = api.user.getCurrentUser.useQuery(undefined, {
+    onSuccess: (res) => {
+      if (!res.firstInterviewCompletedAwardClaimed) {
+        openRewardModal();
+      }
+    },
+  });
+
   const { user } = useClerk();
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState<number>(0);
   const goToNextQuestion = () => {
@@ -77,8 +111,6 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
     };
   }, []);
 
-  console.log({ selectedQuestion });
-
   if (isLoading) return <BouncyLoader className="h-screen" />;
 
   const getBody = () => {
@@ -96,6 +128,10 @@ const InterviewResults: NextPage<PageProps> = ({ id }) => {
 
     return (
       <section className="py-10 ">
+        <MyModal
+          isOpen={isRewardModalOpen}
+          onClose={() => handleModalClose()}
+        />
         <Container>
           <GoToHomeLink className="mb-5 lg:mb-10" />
           <div className="mb-10 flex flex-wrap gap-6">

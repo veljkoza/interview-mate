@@ -9,4 +9,7 @@ export const Config = {
     maximumNumberOfPolls: 30,
     pollingRefetchInterval: 1500,
   },
+  pricing: {
+    discount: 30,
+  },
 };
