@@ -24,12 +24,12 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           />
           <Script id="google-analytics">
             {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
- 
-          gtag('config', '${GTM_ID}');
-        `}
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+    
+              gtag('config', '${GTM_ID}');
+            `}
           </Script>
         </>
       )}
